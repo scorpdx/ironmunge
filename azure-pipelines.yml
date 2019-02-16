@@ -1,0 +1,23 @@
+pool:
+  vmImage: 'vs2017-win2016'
+  
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreInstaller@0
+  displayName: 'Use .NET Core SDK Tool Installer'
+  inputs:
+    version: 2.2.100
+- script: |
+    dotnet build   src/corgit --configuration $(buildConfiguration)                                --output $(Build.BinariesDirectory)
+  displayName: 'dotnet build $(buildConfiguration)'
+- script: |
+    dotnet publish src/corgit --configuration $(buildConfiguration) --no-build                     --output $(Build.ArtifactStagingDirectory)/pub/net
+#    dotnet publish src/corgit --configuration $(buildConfiguration) --no-build --runtime win       --output $(Build.ArtifactStagingDirectory)/pub/win
+#    dotnet publish src/corgit --configuration $(buildConfiguration) --no-build --runtime osx-x64   --output $(Build.ArtifactStagingDirectory)/pub/mac
+#    dotnet publish src/corgit --configuration $(buildConfiguration) --no-build --runtime linux-x64 --output $(Build.ArtifactStagingDirectory)/pub/nix
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/net
+    ArtifactName: 'pub-net'
