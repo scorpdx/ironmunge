@@ -4,6 +4,11 @@
 
 🛠️ironmunge monitors your save game folder for new saves and stores them in a timeline as you play. You can roll back to a previous save, switch between past and future saves, or play through multiple diverging timelines within the same save.
 
+## Download
+🛠️ironmunge just had its [first public release](https://github.com/scorpdx/ironmunge/releases/tag/v1.0)! Visit the link or view the Releases page to download it.
+
+Feedback? Need help? Please [ask on Discord](https://discord.gg/wC3fCgQ) for support.
+
 ## Features
 
 🛠️ironmunge does:
