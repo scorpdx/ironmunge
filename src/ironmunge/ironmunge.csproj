@@ -6,6 +6,7 @@
     <RuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</RuntimeIdentifiers>
     <LangVersion>latest</LangVersion>
     <NullableReferenceTypes>true</NullableReferenceTypes>
+    <ApplicationIcon>Resources/ironmunge.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,6 +17,7 @@
     <None Remove="Resources\failure.wav" />
     <None Remove="Resources\pending.wav" />
     <None Remove="Resources\success.wav" />
+    <None Remove="Resources\ironmunge.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,14 +28,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\failure.wav">
+    <Content Include="Resources/failure.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\pending.wav">
+    <Content Include="Resources/pending.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\success.wav">
+    <Content Include="Resources/success.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources/ironmunge.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
