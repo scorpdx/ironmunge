@@ -183,6 +183,7 @@ namespace SaveManager
             if (!selectSaveResult.HasValue) goto SelectHistory;
             var selectedCommit = selectSaveResult.Value;
 
+#pragma warning disable CS0164 // This label has not been referenced
         ConfirmRestore:
             Console.Clear();
             var confirmed = ConfirmSavePrompt(selectedCommit);
@@ -193,6 +194,7 @@ namespace SaveManager
         Finished:
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();
+#pragma warning restore CS0164 // This label has not been referenced
 
         }
 
