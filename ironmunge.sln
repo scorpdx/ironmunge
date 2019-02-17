@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ironmunge", "src\ironmunge\ironmunge.csproj", "{60082FD1-ACBA-40E2-8C1A-08421E9CD3F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaveManager", "src\SaveManager\SaveManager.csproj", "{C983FC07-7D19-47FC-9321-074687B8D2C6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60082FD1-ACBA-40E2-8C1A-08421E9CD3F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60082FD1-ACBA-40E2-8C1A-08421E9CD3F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60082FD1-ACBA-40E2-8C1A-08421E9CD3F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60082FD1-ACBA-40E2-8C1A-08421E9CD3F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C983FC07-7D19-47FC-9321-074687B8D2C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C983FC07-7D19-47FC-9321-074687B8D2C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C983FC07-7D19-47FC-9321-074687B8D2C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C983FC07-7D19-47FC-9321-074687B8D2C6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7ADE3774-E4CC-4BCB-8F43-5B2718180A48}
+	EndGlobalSection
+EndGlobal
