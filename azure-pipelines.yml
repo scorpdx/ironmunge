@@ -11,26 +11,32 @@ steps:
     version: 2.2.100
 # ironmunge
 - script: |
-    dotnet build   ironmunge.sln --configuration $(buildConfiguration)                                --output $(Build.BinariesDirectory)
+    dotnet build   ironmunge.sln --configuration $(buildConfiguration)                     --output $(Build.BinariesDirectory)
   displayName: 'dotnet build $(buildConfiguration)'
 - script: |
-    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --no-build                     --output $(Build.ArtifactStagingDirectory)/pub/net
-    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --no-build --runtime win       --output $(Build.ArtifactStagingDirectory)/pub/win
-    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --no-build --runtime osx-x64   --output $(Build.ArtifactStagingDirectory)/pub/mac
-    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --no-build --runtime linux-x64 --output $(Build.ArtifactStagingDirectory)/pub/nix
+    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --no-build          --output $(Build.ArtifactStagingDirectory)/pub/net
+- script: |
+    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --runtime win-x64   --output $(Build.ArtifactStagingDirectory)/pub/win-x64
+    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --runtime win-x86   --output $(Build.ArtifactStagingDirectory)/pub/win-x86
+    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --runtime osx-x64   --output $(Build.ArtifactStagingDirectory)/pub/osx-x64
+    dotnet publish ironmunge.sln --configuration $(buildConfiguration) --runtime linux-x64 --output $(Build.ArtifactStagingDirectory)/pub/linux-x64
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/net
     ArtifactName: 'pub-net'
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/win
-    ArtifactName: 'pub-win'
+    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/win-x64
+    ArtifactName: 'pub-win-x64'
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/mac
-    ArtifactName: 'pub-mac'
+    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/win-x86
+    ArtifactName: 'pub-win-x86'
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/nix
-    ArtifactName: 'pub-nix'
+    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/osx-x64
+    ArtifactName: 'pub-osx-x64'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)/pub/linux-x64
+    ArtifactName: 'pub-linux-x64'
