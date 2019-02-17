@@ -23,3 +23,4 @@ ironmunge also includes the following assets:
 |sound: [Call Waiting Tone](https://freesound.org/people/AnthonyRamirez/sounds/455411/)|[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)|
 |sound: [failure 1](https://freesound.org/people/Leszek_Szary/sounds/171673/)|[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)|
 |sound: [Success Jingle](https://freesound.org/people/JustInvoke/sounds/446111/)|[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)|
+|icons: [emoji.ico](https://github.com/davzoku/emoji.ico)|[MIT](https://github.com/davzoku/emoji.ico/blob/master/LICENSE)|
