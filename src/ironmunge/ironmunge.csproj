@@ -24,6 +24,7 @@
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
     <PackageReference Include="corgit" Version="0.1.0" />
     <PackageReference Include="LibCK2" Version="1.0.1" />
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="1.0.0-alpha-*" />
     <PackageReference Include="NAudio" Version="1.9.0-preview2" />
   </ItemGroup>
 
