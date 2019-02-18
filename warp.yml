@@ -1,0 +1,21 @@
+parameters:
+  runtime: ''
+  project: ''
+  outputPath: ''
+
+steps:
+- task: DotNetCoreInstaller@0
+  displayName: 'Use .NET Core SDK Tool Installer'
+  inputs:
+    version: 2.2.100
+- script: dotnet tool install -g dotnet-warp
+    displayName: 'install dotnet-warp'
+- script: dotnet-warp . -v -r ${{ parameters.runtime }}
+    workingDirectory: 'src/${{ parameters.project }}'
+    displayName: 'warp project'
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: 'src/${{ parameters.project }}'
+    contents: '!*.csproj;${{ parameters.project }}*' 
+    targetFolder: '${{ parameters.outputPath }}'
+  displayName: 'copy warp output'

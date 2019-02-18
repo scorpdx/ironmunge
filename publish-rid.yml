@@ -1,0 +1,19 @@
+parameters:
+  runtime: ''
+  outputPath: ''
+
+steps:
+- template: warp.yml
+  parameters:
+    runtime: ${{ parameters.runtime }}
+    project: 'ironmunge'
+    outputPath: ${{ parameters.outputPath }}
+- template: warp.yml
+  parameters:
+    runtime: ${{ parameters.runtime }}
+    project: 'SaveManager'
+    outputPath: ${{ parameters.outputPath }}
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: ${{ parameters.outputPath }}
+    ArtifactName: 'pub-${{ parameters.runtime }}'

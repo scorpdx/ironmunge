@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C5F131A0
 	ProjectSection(SolutionItems) = preProject
 		azure-pipelines.yml = azure-pipelines.yml
 		deploy.sh = deploy.sh
+		publish-rid.yml = publish-rid.yml
+		warp.yml = warp.yml
 	EndProjectSection
 EndProject
 Global
