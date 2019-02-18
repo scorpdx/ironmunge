@@ -13,6 +13,9 @@ namespace ironmunge
         private const string PendingSound = "Resources/pending.wav";
         private const string SuccessSound = "Resources/success.wav";
 
+        private static bool NotificationSoundsPresent()
+            => File.Exists(FailureSound) && File.Exists(PendingSound) && File.Exists(SuccessSound);
+
         private Task NotificationAsync(string path)
             => PlayNotifications ? SoundUtilities.PlayAsync(path) : Task.CompletedTask;
 
@@ -33,6 +36,8 @@ namespace ironmunge
                 throw new ArgumentNullException(nameof(savePath));
             if (string.IsNullOrEmpty(historyPath))
                 throw new ArgumentNullException(nameof(historyPath));
+            if (PlayNotifications && !NotificationSoundsPresent())
+                throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
             _history = new SaveHistory(historyPath, gitPath);
 
