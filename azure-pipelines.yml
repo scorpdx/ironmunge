@@ -1,5 +1,5 @@
 jobs:
-- job: 'Publish Assets'
+- job: 'Publish_Assets'
   pool:
     vmImage: 'ubuntu-16.04'
   variables:
@@ -10,7 +10,7 @@ jobs:
       pathtoPublish: '$(Build.SourcesDirectory)/assets/'
       ArtifactName: 'assets'
 
-- job: 'Publish Linux x64'
+- job: 'Publish_Linux_x64'
   pool:
     vmImage: 'ubuntu-16.04'
   variables:
@@ -21,7 +21,7 @@ jobs:
       runtime: 'linux-x64'
       outputPath: '$(Build.ArtifactStagingDirectory)/pub/linux-x64'
 
-- job: 'Publish macOS x64'
+- job: 'Publish_macOS_x64'
   pool:
     vmImage: 'macOS-10.13'
   variables:
@@ -32,7 +32,7 @@ jobs:
       runtime: 'osx-x64'
       outputPath: '$(Build.ArtifactStagingDirectory)/pub/osx-x64'
 
-- job: 'Publish Windows x64/x86'
+- job: 'Publish_Windows_x64_x86'
   pool:
     vmImage: 'vs2017-win2016'
   variables:
