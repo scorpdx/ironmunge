@@ -1,48 +1,16 @@
 jobs:
-- job: 'Publish_Assets'
-  pool:
-    vmImage: 'ubuntu-16.04'
-  variables:
-    buildConfiguration: 'Release'
-  steps:
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: '$(Build.SourcesDirectory)/assets/'
-      ArtifactName: 'assets'
-
-- job: 'Publish_Linux_x64'
-  pool:
-    vmImage: 'ubuntu-16.04'
-  variables:
-    buildConfiguration: 'Release'
-  steps:
-  - template: publish-rid.yml
-    parameters:
-      runtime: 'linux-x64'
-      outputPath: '$(Build.ArtifactStagingDirectory)/pub/linux-x64'
-
-- job: 'Publish_macOS_x64'
-  pool:
-    vmImage: 'macOS-10.13'
-  variables:
-    buildConfiguration: 'Release'
-  steps:
-  - template: publish-rid.yml
-    parameters:
-      runtime: 'osx-x64'
-      outputPath: '$(Build.ArtifactStagingDirectory)/pub/osx-x64'
-
-- job: 'Publish_Windows_x64_x86'
+- job: Windows
   pool:
     vmImage: 'vs2017-win2016'
-  variables:
-    buildConfiguration: 'Release'
   steps:
-  - template: publish-rid.yml
-    parameters:
-      runtime: 'win-x64'
-      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x64'
-  - template: publish-rid.yml
-    parameters:
-      runtime: 'win-x86'
-      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x86'
+  - script: echo hello from Windows
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.13'
+  steps:
+  - script: echo hello from macOS
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: echo hello from Linux
