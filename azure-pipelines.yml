@@ -5,12 +5,11 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: '$(Build.SourcesDirectory)/assets/'
-        ArtifactName: 'assets'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.SourcesDirectory)/assets/'
+      ArtifactName: 'assets'
 
-jobs:
 - job: 'Publish Linux x64'
   pool:
     vmImage: 'ubuntu-16.04'
@@ -18,9 +17,9 @@ jobs:
     buildConfiguration: 'Release'
   steps:
   - template: publish-rid.yml
-      parameters:
-        runtime: 'linux-x64'
-        outputPath: '$(Build.ArtifactStagingDirectory)/pub/linux-x64'
+    parameters:
+      runtime: 'linux-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/linux-x64'
 
 - job: 'Publish macOS x64'
   pool:
@@ -29,9 +28,9 @@ jobs:
     buildConfiguration: 'Release'
   steps:
   - template: publish-rid.yml
-      parameters:
-        runtime: 'osx-x64'
-        outputPath: '$(Build.ArtifactStagingDirectory)/pub/osx-x64'
+    parameters:
+      runtime: 'osx-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/osx-x64'
 
 - job: 'Publish Windows x64/x86'
   pool:
@@ -40,10 +39,10 @@ jobs:
     buildConfiguration: 'Release'
   steps:
   - template: publish-rid.yml
-      parameters:
-        runtime: 'win-x64'
-        outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x64'
+    parameters:
+      runtime: 'win-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x64'
   - template: publish-rid.yml
-      parameters:
-        runtime: 'win-x86'
-        outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x86'
+    parameters:
+      runtime: 'win-x86'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x86'
