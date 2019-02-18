@@ -18,16 +18,4 @@
     <PackageReference Include="LibCK2" Version="1.0.1" />
     <PackageReference Include="NAudio" Version="1.9.0-preview2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Resources/failure.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources/pending.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources/success.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 </Project>
