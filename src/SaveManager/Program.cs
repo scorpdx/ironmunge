@@ -6,10 +6,10 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using CommandLine;
 
 namespace SaveManager
 {
-    using CommandLine;
     using static ConsoleHelpers;
     class Program
     {
@@ -113,8 +113,13 @@ namespace SaveManager
                 //TODO: use `git archive` for this
             }
 
-            var saveContents = Directory.GetFiles(historyPath);
-            var saveGameName = Path.GetFileName(saveContents.Single(a => Path.GetExtension(a)?.Equals(".ck2", StringComparison.OrdinalIgnoreCase) ?? false));
+            var historyContents = Directory.GetFiles(historyPath);
+            var saveContents = new
+            {
+                save = historyContents.Single(a => Path.GetExtension(a)?.Equals(".ck2", StringComparison.OrdinalIgnoreCase) ?? false),
+                meta = historyContents.Single(a => string.Equals(Path.GetFileName(a), "meta", StringComparison.OrdinalIgnoreCase))
+            };
+            var saveGameName = Path.GetFileName(saveContents.save);
             var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
 
             //make a backup if sg already exists
@@ -127,10 +132,8 @@ namespace SaveManager
             using (var writeStream = File.Create(saveGamePath))
             using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create))
             {
-                foreach (var file in saveContents)
-                {
-                    saveZip.CreateEntryFromFile(file, Path.GetFileName(file));
-                }
+                saveZip.CreateEntryFromFile(saveContents.save, saveGameName);
+                saveZip.CreateEntryFromFile(saveContents.meta, "meta");
             }
 
             Console.WriteLine("Save restored! You are now on a new timeline.");
