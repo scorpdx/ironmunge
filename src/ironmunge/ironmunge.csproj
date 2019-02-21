@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -14,32 +13,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\failure.wav" />
-    <None Remove="Resources\pending.wav" />
-    <None Remove="Resources\success.wav" />
-    <None Remove="Resources\ironmunge.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
     <PackageReference Include="corgit" Version="0.1.0" />
     <PackageReference Include="LibCK2" Version="1.0.1" />
     <PackageReference Include="NAudio" Version="1.9.0-preview2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Resources/failure.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources/pending.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources/success.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources/ironmunge.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>

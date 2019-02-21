@@ -7,6 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ironmunge", "src\ironmunge\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaveManager", "src\SaveManager\SaveManager.csproj", "{C983FC07-7D19-47FC-9321-074687B8D2C6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C5F131A0-0079-41C9-86C6-BBAD22DDB52C}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
+		deploy.sh = deploy.sh
+		publish-rid.yml = publish-rid.yml
+		warp.yml = warp.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
