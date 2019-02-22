@@ -17,6 +17,8 @@ steps:
 - task: CopyFiles@2
   inputs:
     sourceFolder: 'src/${{ parameters.project }}'
-    contents: '!*.csproj;${{ parameters.project }}*' 
+    contents: |
+     ${{ parameters.project }}
+     ${{ parameters.project }}.exe
     targetFolder: '${{ parameters.outputPath }}'
   displayName: 'copy warp output'
