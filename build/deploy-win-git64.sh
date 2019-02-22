@@ -3,4 +3,4 @@ curl -Lo mingit64.zip https://github.com/git-for-windows/git/releases/download/v
 (echo -n "9817ab455d9cbd0b09d8664b4afbe4bbf78d18b556b3541d09238501a749486c *mingit64.zip" | sha256sum -c -) || exit 1
 
 # unzip MinGit 64 and add to assets
-(unzip -o mingit64.zip -d $(Build.SourcesDirectory)/assets/git) || exit 1
+(unzip -o mingit64.zip -d $BUILD_SOURCESDIRECTORY/assets/git) || exit 1
