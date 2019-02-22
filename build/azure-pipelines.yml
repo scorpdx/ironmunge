@@ -40,7 +40,7 @@ jobs:
   workspace:
     clean: outputs
   steps:
-  - bash: $(Build.SourcesDirectory)/build/deploy-win-git64.sh
+  - bash: $BUILD_SOURCESDIRECTORY/build/deploy-win-git64.sh
   - template: publish-rid.yml
     parameters:
       runtime: 'win-x64'
@@ -54,7 +54,7 @@ jobs:
   workspace:
     clean: outputs
   steps:
-  - bash: $(Build.SourcesDirectory)/build/deploy-win-git32.sh
+  - bash: $BUILD_SOURCESDIRECTORY/build/deploy-win-git32.sh
   - template: publish-rid.yml
     parameters:
       runtime: 'win-x86'
