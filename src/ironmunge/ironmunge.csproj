@@ -5,7 +5,6 @@
     <RuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</RuntimeIdentifiers>
     <LangVersion>latest</LangVersion>
     <NullableReferenceTypes>true</NullableReferenceTypes>
-    <ApplicationIcon>Resources/ironmunge.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

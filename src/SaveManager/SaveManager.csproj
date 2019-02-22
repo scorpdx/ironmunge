@@ -4,7 +4,6 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</RuntimeIdentifiers>
     <NullableReferenceTypes>true</NullableReferenceTypes>
-    <ApplicationIcon>Resources/savemanager.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
