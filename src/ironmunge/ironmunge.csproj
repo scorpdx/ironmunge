@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="$(SolutionDir)assets\**" CopyToOutputDirectory="PreserveNewest" Link="Resources\%(RecursiveDir)\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
     <PackageReference Include="corgit" Version="0.1.0" />
     <PackageReference Include="LibCK2" Version="1.0.1" />
