@@ -13,6 +13,9 @@ ironmunge references the following external dependencies:
 |CommandLineParser|[MIT](https://github.com/commandlineparser/commandline/blob/master/License.md)|
 |:star:[corgit](https://github.com/jzebedee/corgit)|[MIT](https://github.com/jzebedee/corgit/blob/master/LICENSE)|
 |NAudio|[Ms-PL](https://github.com/naudio/NAudio/blob/master/license.txt)|
+|warp|[MIT](https://github.com/dgiagio/warp/blob/master/LICENSE)|
+|dotnet-warp|[MIT](https://github.com/Hubert-Rybak/dotnet-warp/blob/master/LICENSE)|
+
 
 ## Assets
 
