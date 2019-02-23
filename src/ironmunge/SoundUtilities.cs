@@ -5,7 +5,7 @@ namespace ironmunge
 {
     static class SoundUtilities
     {
-        public static Task PlayAsync(string path)
+        public static async Task PlayAsync(string path)
         {
             var tcs = new TaskCompletionSource<bool>();
             
@@ -25,7 +25,7 @@ namespace ironmunge
                     }
                 };
                 outputDevice.Play();
-                return tcs.Task;
+                await tcs.Task;
             }
         }
     }
