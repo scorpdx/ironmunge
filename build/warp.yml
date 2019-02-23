@@ -4,10 +4,6 @@ parameters:
   outputPath: ''
 
 steps:
-- task: DotNetCoreInstaller@0
-  displayName: 'Install .NET Core SDK 3.0.100-preview-010184'
-  inputs:
-    version: 3.0.100-preview-010184
 - script: dotnet tool update -g dotnet-warp
   displayName: 'install or update dotnet-warp'
 - script: dotnet-warp . -v -r ${{ parameters.runtime }}

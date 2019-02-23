@@ -4,9 +4,9 @@ parameters:
 
 steps:
 - task: DotNetCoreInstaller@0
-  displayName: 'Use .NET Core SDK Tool Installer'
+  displayName: 'Install .NET Core SDK 3.0.100-preview-010184'
   inputs:
-    version: 2.2.100
+    version: 3.0.100-preview-010184
 - template: warp.yml
   parameters:
     runtime: ${{ parameters.runtime }}
