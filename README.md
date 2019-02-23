@@ -7,8 +7,6 @@
 ## Download
 🛠️ironmunge just had its [first public release](https://github.com/scorpdx/ironmunge/releases/tag/v1.0)! Visit the link or view the Releases page to download it.
 
-Feedback? Need help? Please [ask on Discord](https://discord.gg/wC3fCgQ) for support.
-
 ## Features
 
 🛠️ironmunge does:
@@ -23,3 +21,8 @@ Feedback? Need help? Please [ask on Discord](https://discord.gg/wC3fCgQ) for sup
 + Go back in time
 
    🛠️ironmunge can only keep a history of games that were saved while it is running. It can't let you go back to previous saves when you weren't using ironmunge.
+
+## Discussion
+Feedback? Need help? Please [ask on Discord](https://discord.gg/wC3fCgQ) for support.
+
+Forum discussion is on [/r/CrusaderKings](https://www.reddit.com/r/CrusaderKings/comments/arltdw/ironmunge_a_save_manager_for_crusader_kings_ii/) and [the Paradox Interactive forums](https://forum.paradoxplaza.com/forum/index.php?threads/%EF%B8%8Fironmunge-a-save-manager-for-crusader-kings-ii.1153339/).
