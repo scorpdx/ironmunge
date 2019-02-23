@@ -41,6 +41,10 @@ namespace ironmunge
             await corgit.InitAsync();
             await corgit.ConfigAsync("user.name", value: "ironmunge");
             await corgit.ConfigAsync("user.email", value: "@v0.1");
+            //unset text to disable eol conversions
+            File.WriteAllText(Path.Combine(path, ".gitattributes"), "* -text");
+            await corgit.AddAsync();
+            await corgit.CommitAsync("Initialize save history");
         }
 
         public async Task<(string description, string commitId)> AddSaveAsync(string savePath, string filename)
