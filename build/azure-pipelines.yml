@@ -1,0 +1,63 @@
+jobs:
+- job: 'Publish_Assets_Scripts'
+  pool:
+    vmImage: 'ubuntu-16.04'
+  variables:
+    buildConfiguration: 'Release'
+  steps:
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.SourcesDirectory)/assets/'
+      ArtifactName: 'assets'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.SourcesDirectory)/build/'
+      ArtifactName: 'buildscripts'
+
+- job: 'Publish_Linux_x64'
+  pool:
+    vmImage: 'ubuntu-16.04'
+  variables:
+    buildConfiguration: 'Release'
+  steps:
+  - template: publish-rid.yml
+    parameters:
+      runtime: 'linux-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/linux-x64'
+
+- job: 'Publish_macOS_x64'
+  pool:
+    vmImage: 'macOS-10.13'
+  variables:
+    buildConfiguration: 'Release'
+  steps:
+  - template: publish-rid.yml
+    parameters:
+      runtime: 'osx-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/osx-x64'
+
+- job: 'Publish_Windows_x64'
+  pool:
+    vmImage: 'vs2017-win2016'
+  variables:
+    buildConfiguration: 'Release'
+  workspace:
+    clean: outputs
+  steps:
+  - template: publish-rid.yml
+    parameters:
+      runtime: 'win-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x64'
+
+- job: 'Publish_Windows_x86'
+  pool:
+    vmImage: 'vs2017-win2016'
+  variables:
+    buildConfiguration: 'Release'
+  workspace:
+    clean: outputs
+  steps:
+  - template: publish-rid.yml
+    parameters:
+      runtime: 'win-x86'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x86'
