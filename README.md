@@ -7,6 +7,12 @@
 ## Download
 🛠️ironmunge was last updated in: [**Simple launcher** *(2019-02-23)*](https://github.com/scorpdx/ironmunge/releases/tag/Release-9)! Visit the link or view the Releases page to download it.
 
+The major changes in this release are:
+* Simple launchers for `ironmunge` and `SaveManager`
+  - There is now a single executable file for each, and no big folder full of dependencies
+* Additional settings to make sure saves aren't modified from miscellaneous files in a save history folder
+* Safety checks to make sure notification sounds aren't missing at startup
+
 ## Features
 
 🛠️ironmunge does:
