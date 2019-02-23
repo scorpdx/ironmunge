@@ -5,11 +5,11 @@ parameters:
 
 steps:
 - task: DotNetCoreInstaller@0
-  displayName: 'Use .NET Core SDK Tool Installer'
+  displayName: 'Install .NET Core SDK 3.0.100-preview-010184'
   inputs:
-    version: 2.2.100
+    version: 3.0.100-preview-010184
 - script: dotnet tool update -g dotnet-warp
-  displayName: 'install dotnet-warp'
+  displayName: 'install or update dotnet-warp'
 - script: dotnet-warp . -v -r ${{ parameters.runtime }}
   workingDirectory: 'src/${{ parameters.project }}'
   displayName: 'warp project'

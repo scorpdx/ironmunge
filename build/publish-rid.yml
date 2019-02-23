@@ -3,6 +3,10 @@ parameters:
   outputPath: ''
 
 steps:
+- task: DotNetCoreInstaller@0
+  displayName: 'Use .NET Core SDK Tool Installer'
+  inputs:
+    version: 2.2.100
 - template: warp.yml
   parameters:
     runtime: ${{ parameters.runtime }}
