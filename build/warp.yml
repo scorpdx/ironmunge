@@ -8,9 +8,8 @@ steps:
   displayName: 'Use .NET Core SDK Tool Installer'
   inputs:
     version: 2.2.100
-- script: dotnet tool install -g dotnet-warp
+- script: dotnet tool update -g dotnet-warp
   displayName: 'install dotnet-warp'
-  continueOnError: true
 - script: dotnet-warp . -v -r ${{ parameters.runtime }}
   workingDirectory: 'src/${{ parameters.project }}'
   displayName: 'warp project'
