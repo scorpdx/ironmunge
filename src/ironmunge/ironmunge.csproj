@@ -12,14 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Condition="'$(Configuration)'=='Debug'"
-             Include="$(SolutionDir)assets\**"
-             CopyToOutputDirectory="PreserveNewest"
-             Link="Resources\%(RecursiveDir)\%(Filename)%(Extension)" />
-    <Content Condition="'$(Configuration)'=='Release'"
-             Include="$(BUILD_SOURCESDIRECTORY)/assets/**"
-             CopyToPublishDirectory="PreserveNewest"
-             Link="Resources\%(RecursiveDir)\%(Filename)%(Extension)" />
+    <Content Condition="'$(Configuration)'=='Debug'" Include="$(SolutionDir)assets\**" CopyToOutputDirectory="PreserveNewest" Link="Resources\%(RecursiveDir)\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
