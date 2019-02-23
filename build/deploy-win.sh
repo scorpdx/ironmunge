@@ -13,13 +13,13 @@ curl -Lo mingit64.zip https://github.com/git-for-windows/git/releases/download/v
 (unzip -o mingit32.zip -d pub-win-x86/Resources/git) || exit 1
 
 # download and verify rcedit (assume x64 host)
-curl -Lo rcedit.exe https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
-(echo -n "02e8e8c5d430d8b768980f517b62d7792d690982b9ba0f7e04163cbc1a6e7915 *rcedit.exe" | sha256sum -c -) || exit 1
+#curl -Lo rcedit.exe https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
+#(echo -n "02e8e8c5d430d8b768980f517b62d7792d690982b9ba0f7e04163cbc1a6e7915 *rcedit.exe" | sha256sum -c -) || exit 1
 
 # set ironmunge icon
-./rcedit.exe pub-win-x64/ironmunge.exe --set-icon pub-win-x64/Resources/ironmunge.ico
-./rcedit.exe pub-win-x86/ironmunge.exe --set-icon pub-win-x86/Resources/ironmunge.ico
+#./rcedit.exe pub-win-x64/ironmunge.exe --set-icon pub-win-x64/Resources/ironmunge.ico
+#./rcedit.exe pub-win-x86/ironmunge.exe --set-icon pub-win-x86/Resources/ironmunge.ico
 
 # set SaveManager icon
-./rcedit.exe pub-win-x64/SaveManager.exe --set-icon pub-win-x64/Resources/savemanager.ico
-./rcedit.exe pub-win-x86/SaveManager.exe --set-icon pub-win-x86/Resources/savemanager.ico
+#./rcedit.exe pub-win-x64/SaveManager.exe --set-icon pub-win-x64/Resources/savemanager.ico
+#./rcedit.exe pub-win-x86/SaveManager.exe --set-icon pub-win-x86/Resources/savemanager.ico
