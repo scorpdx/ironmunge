@@ -31,7 +31,7 @@ namespace ironmunge
         public ChangeMonitoring(string gitPath, string savePath, string historyPath)
         {
             if (string.IsNullOrEmpty(gitPath))
-                throw new ArgumentNullException(nameof(gitPath));
+                throw new ArgumentNullException(nameof(gitPath), "git was not found");
             if (string.IsNullOrEmpty(savePath))
                 throw new ArgumentNullException(nameof(savePath));
             if (string.IsNullOrEmpty(historyPath))
@@ -120,8 +120,6 @@ namespace ironmunge
             {
                 await NotificationAsync(FailureSound);
                 Console.Error.WriteLine(e);
-
-                //await Task.Delay((tries + 1) * 5000).ContinueWith(t => SaveAsync(path, name, tries++));
             }
         }
 
