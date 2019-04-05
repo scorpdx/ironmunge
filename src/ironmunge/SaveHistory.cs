@@ -60,8 +60,6 @@ namespace ironmunge
                     using (var entryStream = a.entry.Open())
                         await entryStream.CopyToAsync(outputStream);
                 }
-
-                Debug.Assert(outputs.Select(a => new FileInfo(a.outputPath)).All(fi => fi.Length > 0));
             }
 
             return await AddGitSaveAsync(historyDir);
