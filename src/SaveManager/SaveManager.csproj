@@ -4,14 +4,13 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</RuntimeIdentifiers>
     <NullableReferenceTypes>true</NullableReferenceTypes>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
     <PackageReference Include="corgit" Version="0.2.0-CI-20190315.17" />
     <PackageReference Include="Humanizer.Core" Version="2.6.2" />
-    <PackageReference Include="LibCK2" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
