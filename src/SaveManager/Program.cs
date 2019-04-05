@@ -1,6 +1,5 @@
 ﻿using Humanizer;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -9,6 +8,7 @@ using CommandLine;
 using ironmunge.Common;
 using corgit;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace SaveManager
 {
@@ -59,7 +59,7 @@ namespace SaveManager
                 var commits = (await git.LogAsync(new GitArguments.LogOptions(maxEntries: null, reverse: true), "*.ck2", "meta")).ToList();
                 for (int i = 0; i < commits.Count; i++)
                 {
-                    DisplayCommit(commits[i], i+1);
+                    DisplayCommit(commits[i], i + 1);
                 }
 
                 do
@@ -124,24 +124,14 @@ namespace SaveManager
                 File.Copy(saveGamePath, backupPath, true);
             }
 
-            var res = await git.ArchiveAsync(commit.Hash, saveGamePath, options: new corgit.GitArguments.ArchiveOptions(format: "zip", paths: new[] { saveGameName, "meta" }));
-
             try
             {
-                using (var readStream = File.Open(saveGamePath, FileMode.Open, FileAccess.ReadWrite))
-                using (var saveZip = new ZipArchive(readStream, ZipArchiveMode.Update, true, LibCK2.SaveGame.SaveGameEncoding))
+                //var res = await git.ArchiveAsync(commit.Hash, saveGamePath, options: new GitArguments.ArchiveOptions(format: "zip", paths: new[] { saveGameName, "meta" }));
+                using (var writeStream = File.Create(saveGamePath))
+                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, false, LibCK2.SaveGame.SaveGameEncoding))
                 {
-                    var saveEntry = saveZip.Entries[0];
-                    var metaEntry = saveZip.Entries[1];
-
-                    var crcs = File.ReadLines(Path.Combine(historyPath, "ironmunge_crcs.txt"))
-                        .ToDictionary(l => l.Substring(0, l.LastIndexOf(' ')), l => l.Substring(l.LastIndexOf(' ') + 1))
-                        .ToDictionary(a => a.Key, a => uint.Parse(a.Value, NumberStyles.HexNumber));
-                    var matchingCrcs = (from kvp in crcs
-                                        join zipEntries in saveZip.Entries on kvp.Key equals zipEntries.Name
-                                        select new { ledgerName = kvp.Key, ledgerCrc = kvp.Value, zipCrc = zipEntries.Crc32, matchesCrc = kvp.Value == zipEntries.Crc32 }).ToList();
-                    if (!(matchingCrcs.Count == 2 && matchingCrcs.All(a => a.matchesCrc)))
-                        throw new InvalidOperationException("Reconstructed history save does not match original");
+                    saveZip.CreateEntryFromFile(saveContents.save, saveGameName);
+                    saveZip.CreateEntryFromFile(saveContents.meta, "meta");
                 }
 
                 Console.WriteLine("Save restored! You are now on a new timeline.");
@@ -186,7 +176,7 @@ namespace SaveManager
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
 
-        SelectHistory:
+            SelectHistory:
             Console.Clear();
             var selectedDirectory = SelectHistoryPrompt(saveHistoryLocation);
 
