@@ -28,6 +28,8 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
+        public string Remote { get; set; }
+
         public ChangeMonitoring(string gitPath, string savePath, string historyPath)
         {
             if (string.IsNullOrEmpty(gitPath))
