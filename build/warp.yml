@@ -4,8 +4,6 @@ parameters:
   outputPath: ''
 
 steps:
-- script: dotnet tool update -g dotnet-warp
-  displayName: 'install or update dotnet-warp'
 - script: dotnet-warp . -v -r ${{ parameters.runtime }}
   workingDirectory: 'src/${{ parameters.project }}'
   displayName: 'warp project'
