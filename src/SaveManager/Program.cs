@@ -1,12 +1,14 @@
 ﻿using Humanizer;
-using LibGit2Sharp;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using CommandLine;
+using ironmunge.Common;
+using corgit;
+using System.Threading.Tasks;
+using System.Text;
 
 namespace SaveManager
 {
@@ -45,7 +47,7 @@ namespace SaveManager
             return (selectedDirectory.path, selectedDirectory.display);
         }
 
-        static (Commit commit, int index)? SelectSavePrompt((string path, string display) selectedDirectory)
+        static async Task<(GitCommit commit, int index)?> SelectSavePromptAsync(Corgit git, (string path, string display) selectedDirectory)
         {
             Console.WriteLine($"| Viewing {selectedDirectory.display}");
             Console.WriteLine($"| From oldest to newest");
@@ -53,15 +55,11 @@ namespace SaveManager
 
             string selection;
             int selectedIndex;
-            using (var repo = new Repository(selectedDirectory.path))
             {
-                var commitList = new List<Commit>();
-
-                var filter = new CommitFilter { SortBy = CommitSortStrategies.Topological | CommitSortStrategies.Reverse };
-                foreach (Commit c in repo.Commits.QueryBy(filter))
+                var commits = (await git.LogAsync(new GitArguments.LogOptions(maxEntries: null, reverse: true), "*.ck2", "meta")).ToList();
+                for (int i = 0; i < commits.Count; i++)
                 {
-                    commitList.Add(c);
-                    DisplayCommit(c, commitList.Count);
+                    DisplayCommit(commits[i], i + 1);
                 }
 
                 do
@@ -74,13 +72,13 @@ namespace SaveManager
                     {
                         return null;
                     }
-                } while (!int.TryParse(selection, out selectedIndex) || (selectedIndex <= 0 || selectedIndex > commitList.Count));
+                } while (!int.TryParse(selection, out selectedIndex) || (selectedIndex <= 0 || selectedIndex > commits.Count));
 
-                return (commitList[selectedIndex - 1], selectedIndex);
+                return (commits[selectedIndex - 1], selectedIndex);
             }
         }
 
-        static bool ConfirmSavePrompt((Commit commit, int index) selectedCommit)
+        static bool ConfirmSavePrompt((GitCommit commit, int index) selectedCommit)
         {
             Console.WriteLine("You selected: ");
 
@@ -102,62 +100,63 @@ namespace SaveManager
             return true;
         }
 
-        static void RestoreSave(string saveGameLocation, string historyPath, Commit commit)
+        static async Task RestoreSaveAsync(Corgit git, string saveGameLocation, string historyPath, GitCommit commit)
         {
-            using (var repo = new Repository(historyPath))
             {
                 var currentTime = DateTime.UtcNow.ToString("yyyy''MM''dd'T'HH''mm''ss", CultureInfo.InvariantCulture);
-                var restoreBranch = repo.CreateBranch($"restore{currentTime}", commit);
-                Commands.Checkout(repo, restoreBranch);
-
-                //TODO: use `git archive` for this
+                var restoreBranch = await git.CheckoutNewBranchAsync($"restore{currentTime}", startPoint: commit.Hash);
             }
 
-            var historyContents = Directory.GetFiles(historyPath);
+            var historyContents = Directory.EnumerateFiles(historyPath, "*", SearchOption.TopDirectoryOnly);
             var saveContents = new
             {
-                save = historyContents.Single(a => Path.GetExtension(a)?.Equals(".ck2", StringComparison.OrdinalIgnoreCase) ?? false),
-                meta = historyContents.Single(a => string.Equals(Path.GetFileName(a), "meta", StringComparison.OrdinalIgnoreCase))
+                save = historyContents.Single(a => Path.GetExtension(a).Equals(".ck2", StringComparison.OrdinalIgnoreCase)),
+                meta = historyContents.Single(a => Path.GetFileName(a).Equals("meta", StringComparison.OrdinalIgnoreCase))
             };
             var saveGameName = Path.GetFileName(saveContents.save);
             var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
 
             //make a backup if sg already exists
+            string backupPath = null;
             if (File.Exists(saveGamePath))
             {
-                var backupPath = Path.ChangeExtension(saveGamePath, ".ck2.backup");
+                backupPath = Path.ChangeExtension(saveGamePath, ".ck2.backup");
                 File.Copy(saveGamePath, backupPath, true);
             }
 
-            using (var writeStream = File.Create(saveGamePath))
-            using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create))
+            try
             {
-                saveZip.CreateEntryFromFile(saveContents.save, saveGameName);
-                saveZip.CreateEntryFromFile(saveContents.meta, "meta");
+                //var res = await git.ArchiveAsync(commit.Hash, saveGamePath, options: new GitArguments.ArchiveOptions(format: "zip", paths: new[] { saveGameName, "meta" }));
+                using (var writeStream = File.Create(saveGamePath))
+                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, false, LibCK2.SaveGame.SaveGameEncoding))
+                {
+                    saveZip.CreateEntryFromFile(saveContents.save, saveGameName);
+                    saveZip.CreateEntryFromFile(saveContents.meta, "meta");
+                }
+
+                Console.WriteLine("Save restored! You are now on a new timeline.");
             }
-
-            Console.WriteLine("Save restored! You are now on a new timeline.");
-        }
-
-        class Options
-        {
-            [Option('s', "saveGames", HelpText = "Path of the Crusader Kings save game directory")]
-            public string SaveGameLocation { get; set; }
-
-            [Option('h', "saveHistories", HelpText = "Path of the ironmunge save history directory")]
-            public string SaveHistoryLocation { get; set; }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.ToString());
+                if (!string.IsNullOrEmpty(backupPath))
+                {
+                    File.Copy(backupPath, saveGamePath, true);
+                    Console.Error.WriteLine($"SaveManager restored backup {Path.GetFileNameWithoutExtension(backupPath)}");
+                }
+                Console.Error.WriteLine("You are NOT on a new timeline.");
+            }
         }
 
         static string DefaultSaveDir => LibCK2.SaveGame.SaveGameLocation;
 
         static void Main(string[] args)
         {
-
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
-                    InteractiveRestore(o.SaveGameLocation ?? DefaultSaveDir,
-                                       o.SaveHistoryLocation ?? DefaultSaveDir);
+                    var task = InteractiveRestoreAsync(o.GitLocation ?? GitHelpers.DefaultGitPath, o.SaveGameLocation ?? DefaultSaveDir, o.SaveHistoryLocation ?? DefaultSaveDir);
+                    task.Wait();
                 })
                 .WithNotParsed(o =>
                 {
@@ -172,16 +171,20 @@ namespace SaveManager
                 });
         }
 
-        static void InteractiveRestore(string saveGameLocation, string saveHistoryLocation)
+        static async Task InteractiveRestoreAsync(string gitPath, string saveGameLocation, string saveHistoryLocation)
         {
+            if (string.IsNullOrEmpty(gitPath))
+                throw new ArgumentNullException(nameof(gitPath), "git was not found");
 
-        SelectHistory:
+            SelectHistory:
             Console.Clear();
             var selectedDirectory = SelectHistoryPrompt(saveHistoryLocation);
 
+            var git = new Corgit(gitPath, selectedDirectory.path);
+
         SelectSave:
             Console.Clear();
-            var selectSaveResult = SelectSavePrompt(selectedDirectory);
+            var selectSaveResult = await SelectSavePromptAsync(git, selectedDirectory);
 
             if (!selectSaveResult.HasValue) goto SelectHistory;
             var selectedCommit = selectSaveResult.Value;
@@ -192,7 +195,7 @@ namespace SaveManager
             var confirmed = ConfirmSavePrompt(selectedCommit);
             if (!confirmed) goto SelectSave;
 
-            RestoreSave(saveGameLocation, selectedDirectory.path, selectedCommit.commit);
+            await RestoreSaveAsync(git, saveGameLocation, selectedDirectory.path, selectedCommit.commit);
 
         Finished:
             Console.WriteLine("Press any key to exit.");
@@ -201,17 +204,17 @@ namespace SaveManager
 
         }
 
-        private static void DisplayCommit(Commit c, int index, DateTimeOffset? lastDate = null)
+        private static void DisplayCommit(GitCommit c, int index, DateTimeOffset? lastDate = null)
         {
             if (c.Parents.Count() > 1)
             {
                 Console.WriteLine("Merge: {0}",
-                    string.Join(" ", c.Parents.Select(p => p.Id.Sha.Substring(0, 7)).ToArray()));
+                    string.Join(" ", c.Parents.Select(p => p.Substring(0, 7)).ToArray()));
             }
 
             const string RFC2822Format = "ddd dd MMM HH:mm:ss yyyy K";
-            var timestamp = c.Author.When.ToString(RFC2822Format, CultureInfo.InvariantCulture);
-            var timegist = c.Author.When.Humanize(lastDate, culture: CultureInfo.InvariantCulture);
+            var timestamp = c.AuthorDate.ToString(RFC2822Format, CultureInfo.InvariantCulture);
+            var timegist = c.AuthorDate.Humanize(lastDate, culture: CultureInfo.InvariantCulture);
             ConsoleWriteColored($"Date:\t%fg{timegist}%R\t{timestamp}");
             Console.WriteLine();
 

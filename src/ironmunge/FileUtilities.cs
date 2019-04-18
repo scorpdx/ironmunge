@@ -18,7 +18,7 @@ namespace ironmunge
             {
                 try
                 {
-                    using (var fsIn = File.Open(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var fsIn = File.OpenRead(sourcePath))
                     using (var fsOut = File.Create(destinationPath))
                     {
                         await fsIn.CopyToAsync(fsOut);

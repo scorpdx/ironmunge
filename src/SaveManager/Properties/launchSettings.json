@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SaveManager": {
+      "commandName": "Project",
+      "commandLineArgs": "-g \"%USERPROFILE%/.nuget/packages/git-windows-minimal/2.20.1/tools/cmd/git.exe\""
+    }
+  }
+}
