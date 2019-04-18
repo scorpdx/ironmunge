@@ -4,15 +4,8 @@ parameters:
   outputPath: ''
 
 steps:
-- task: DotNetCoreInstaller@0
-  displayName: 'Install .NET Core SDK 2.2.100'
-  inputs:
-    version: 2.2.100
-- script: dotnet tool uninstall -g dotnet-warp
-  displayName: 'uninstall dotnet-warp'
-  continueOnError: true
-- script: dotnet tool install -g dotnet-warp --version 1.0.7
-  displayName: 'install dotnet-warp'
+- script: dotnet tool update -g dotnet-warp
+  displayName: 'install or update dotnet-warp'
 - script: dotnet-warp . -v -r ${{ parameters.runtime }}
   workingDirectory: 'src/${{ parameters.project }}'
   displayName: 'warp project'
