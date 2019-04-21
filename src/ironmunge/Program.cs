@@ -8,6 +8,9 @@ namespace ironmunge
     {
         [Option('n', "notifications", HelpText = "Play notification sounds while saving history", Default = true)]
         public bool Notifications { get; set; }
+
+        [Option('r', "remote", HelpText = "Remote server to push updates")]
+        public string Remote { get; set; }
     }
 
     class Program
@@ -21,12 +24,18 @@ namespace ironmunge
                 {
                     using (var cm = new ChangeMonitoring(o.GitLocation ?? GitHelpers.DefaultGitPath,
                                                          o.SaveGameLocation ?? DefaultSaveDir,
-                                                         o.SaveHistoryLocation ?? DefaultSaveDir))
+                                                         o.SaveHistoryLocation ?? DefaultSaveDir,
+                                                         o.Remote))
                     {
                         cm.PlayNotifications = o.Notifications;
                         Console.WriteLine("ironmunge is now running.");
-                        Console.WriteLine("Press ENTER to exit.");
-                        Console.ReadLine();
+                        Console.WriteLine("Press ESCAPE to exit.");
+
+                        ConsoleKeyInfo key;
+                        while ((key = Console.ReadKey()).Key != ConsoleKey.Escape)
+                        {
+                            //wait for key to exit
+                        }
                     }
                 })
                 .WithNotParsed(o =>

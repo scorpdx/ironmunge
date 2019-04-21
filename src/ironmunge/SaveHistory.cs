@@ -17,10 +17,13 @@ namespace ironmunge
 
         private string GitPath { get; }
 
-        public SaveHistory(string baseDirectory, string gitPath)
+        public string Remote { get; }
+
+        public SaveHistory(string baseDirectory, string gitPath, string remote = null)
         {
             this.BaseDirectory = baseDirectory;
             this.GitPath = gitPath;
+            this.Remote = remote;
         }
 
         private async ValueTask<string> InitializeHistoryDirectoryAsync(string filename)
@@ -34,6 +37,7 @@ namespace ironmunge
                 await corgit.InitAsync();
                 await corgit.ConfigAsync("user.name", value: "ironmunge");
                 await corgit.ConfigAsync("user.email", value: "@v0.1");
+                await corgit.ConfigAsync("push.default", value: "current");
                 //unset text to disable eol conversions
                 File.WriteAllText(Path.Combine(path, ".gitattributes"), "* -text");
                 await corgit.AddAsync();
@@ -85,6 +89,25 @@ namespace ironmunge
             }
 
             var result = await corgit.CommitAsync(gameDescription);
+            if(result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
+            {
+                var setUrl = await corgit.RunGitAsync($"remote set-url origin {Remote}");
+                if(setUrl.ExitCode != 0)
+                {
+                    var addRemote = await corgit.RunGitAsync($"remote add origin {Remote}");
+                    if(addRemote.ExitCode != 0)
+                    {
+                        throw new InvalidOperationException($"Configuring remote failed: {setUrl} {addRemote}");
+                    }
+                }
+
+                var push = await corgit.RunGitAsync("push");
+                if(push.ExitCode != 0)
+                {
+                    throw new InvalidOperationException($"Pushing remote failed: {push}");
+                }
+            }
+
             return (gameDescription, result.Output);
         }
 
