@@ -28,9 +28,7 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public string Remote { get; set; }
-
-        public ChangeMonitoring(string gitPath, string savePath, string historyPath)
+        public ChangeMonitoring(string gitPath, string savePath, string historyPath, string remote = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -41,7 +39,7 @@ namespace ironmunge
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
-            _history = new SaveHistory(historyPath, gitPath);
+            _history = new SaveHistory(historyPath, gitPath, remote);
 
             _watcher = new FileSystemWatcher(savePath)
             {
