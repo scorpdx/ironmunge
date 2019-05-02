@@ -15,10 +15,22 @@ namespace ironmunge
 
     class Program
     {
+        const string IronmungeMutex = @"Global\ironmunge";
+
         static string DefaultSaveDir => LibCK2.SaveGame.SaveGameLocation;
 
         static void Main(string[] args)
         {
+            using var mutex = new System.Threading.Mutex(true, IronmungeMutex, out bool createdMutex);
+            if(!createdMutex)
+            {
+                Console.WriteLine("ironmunge is already running.");
+                Console.WriteLine("Please close any running instances and try again.");
+                Console.WriteLine("Press ENTER to exit.");
+                Console.ReadLine();
+                return;
+            }
+
             var options = CommandLine.Parser.Default.ParseArguments<IronmungeOptions>(args)
                 .WithParsed(o =>
                 {
