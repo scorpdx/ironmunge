@@ -15,6 +15,8 @@ namespace ironmunge
 
     class Program
     {
+        const string IronmungeMutexName = "ironmunge";
+
         static string DefaultSaveDir => LibCK2.SaveGame.SaveGameLocation;
 
         static void Main(string[] args)
@@ -22,6 +24,16 @@ namespace ironmunge
             var options = CommandLine.Parser.Default.ParseArguments<IronmungeOptions>(args)
                 .WithParsed(o =>
                 {
+                    using var mutex = new System.Threading.Mutex(true, IronmungeMutexName, out bool createdMutex);
+                    if (!createdMutex)
+                    {
+                        Console.WriteLine("ironmunge is already running.");
+                        Console.WriteLine("Please close any running instances and try again.");
+                        Console.WriteLine("Press ENTER to exit.");
+                        Console.ReadLine();
+                        return;
+                    }
+
                     using (var cm = new ChangeMonitoring(o.GitLocation ?? GitHelpers.DefaultGitPath,
                                                          o.SaveGameLocation ?? DefaultSaveDir,
                                                          o.SaveHistoryLocation ?? DefaultSaveDir,
@@ -34,8 +46,8 @@ namespace ironmunge
                         ConsoleKeyInfo key;
                         while ((key = Console.ReadKey()).Key != ConsoleKey.Escape)
                         {
-                            //wait for key to exit
-                        }
+                                //wait for key to exit
+                            }
                     }
                 })
                 .WithNotParsed(o =>
