@@ -15,7 +15,7 @@ namespace ironmunge
 
     class Program
     {
-        const string IronmungeMutexName = @"Global\ironmunge";
+        const string IronmungeMutexName = "ironmunge";
 
         static string DefaultSaveDir => LibCK2.SaveGame.SaveGameLocation;
 
