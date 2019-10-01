@@ -28,7 +28,7 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public ChangeMonitoring(string gitPath, string savePath, string historyPath, string remote = null)
+        public ChangeMonitoring(string gitPath, string savePath, string historyPath, string? remote = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -56,7 +56,7 @@ namespace ironmunge
         async void CopyAndSave(object sender, FileSystemEventArgs e)
         {
             bool ownsSave = false;
-            string copyPath = null;
+            string? copyPath = null;
 
             try
             {
@@ -84,7 +84,7 @@ namespace ironmunge
             }
         }
 
-        async Task<string> CopySaveAsync(string filepath)
+        async Task<string?> CopySaveAsync(string filepath)
         {
             try
             {

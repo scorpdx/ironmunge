@@ -17,9 +17,9 @@ namespace ironmunge
 
         private string GitPath { get; }
 
-        public string Remote { get; }
+        public string? Remote { get; }
 
-        public SaveHistory(string baseDirectory, string gitPath, string remote = null)
+        public SaveHistory(string baseDirectory, string gitPath, string? remote = null)
         {
             this.BaseDirectory = baseDirectory;
             this.GitPath = gitPath;

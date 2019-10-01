@@ -10,7 +10,7 @@ namespace ironmunge
         public bool Notifications { get; set; }
 
         [Option('r', "remote", HelpText = "Remote server to push updates")]
-        public string Remote { get; set; }
+        public string? Remote { get; set; }
     }
 
     class Program

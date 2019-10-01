@@ -3,11 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>ironmunge.Common</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.4.3" />
-    <PackageReference Include="LibCK2" Version="2.1.0-CI-20190405.6" />
+    <PackageReference Include="CommandLineParser" Version="2.6.0" />
+    <PackageReference Include="LibCK2" Version="2.1.0-CI-20190728.3" />
   </ItemGroup>
 
 </Project>

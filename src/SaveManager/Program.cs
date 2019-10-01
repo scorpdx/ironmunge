@@ -117,7 +117,7 @@ namespace SaveManager
             var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
 
             //make a backup if sg already exists
-            string backupPath = null;
+            string? backupPath = null;
             if (File.Exists(saveGamePath))
             {
                 backupPath = Path.ChangeExtension(saveGamePath, ".ck2.backup");
