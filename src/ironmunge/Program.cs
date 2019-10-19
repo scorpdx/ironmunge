@@ -10,14 +10,14 @@ namespace ironmunge
         public bool Notifications { get; set; }
 
         [Option('r', "remote", HelpText = "Remote server to push updates")]
-        public string Remote { get; set; }
+        public string? Remote { get; set; }
     }
 
     class Program
     {
         const string IronmungeMutexName = "ironmunge";
 
-        static string DefaultSaveDir => LibCK2.SaveGame.SaveGameLocation;
+        static string DefaultSaveDir => CK2Settings.SaveGameLocation;
 
         static void Main(string[] args)
         {
@@ -34,7 +34,7 @@ namespace ironmunge
                         return;
                     }
 
-                    using (var cm = new ChangeMonitoring(o.GitLocation ?? GitHelpers.DefaultGitPath,
+                    using (var cm = new ChangeMonitoring(o.GitLocation ?? Options.DefaultGitPath,
                                                          o.SaveGameLocation ?? DefaultSaveDir,
                                                          o.SaveHistoryLocation ?? DefaultSaveDir,
                                                          o.Remote))
@@ -46,8 +46,8 @@ namespace ironmunge
                         ConsoleKeyInfo key;
                         while ((key = Console.ReadKey()).Key != ConsoleKey.Escape)
                         {
-                                //wait for key to exit
-                            }
+                            //wait for key to exit
+                        }
                     }
                 })
                 .WithNotParsed(o =>
