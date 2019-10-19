@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Chronicler" Version="0.3.0" />
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
-    <PackageReference Include="LibCK2" Version="2.1.0-CI-20190728.3" />
   </ItemGroup>
 
 </Project>
