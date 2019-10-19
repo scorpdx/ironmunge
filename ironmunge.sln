@@ -12,7 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{398B1DD8
 		build\azure-pipelines.yml = build\azure-pipelines.yml
 		build\deploy-win.sh = build\deploy-win.sh
 		build\publish-rid.yml = build\publish-rid.yml
-		build\warp.yml = build\warp.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "src\common\common.csproj", "{6830F1FB-7903-4756-9378-3884B928BDA7}"
