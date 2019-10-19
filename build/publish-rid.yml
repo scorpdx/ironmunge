@@ -7,13 +7,20 @@ steps:
   displayName: 'Use .NET Core sdk >=3.x'
   inputs:
     packageType: sdk
-    version: 3.x
-- script: dotnet publish -c Release -r ${{ parameters.runtime }} -o ${{ parameters.outputPath }}
-  workingDirectory: 'src/ironmunge'
-  displayName: 'dotnet publish: ironmunge'
-- script: dotnet publish -c Release -r ${{ parameters.runtime }} -o ${{ parameters.outputPath }}
-  workingDirectory: 'src/SaveManager'
-  displayName: 'dotnet publish: SaveManager'
+# workaround for 'UseDotNet@2 cant find sdk version matching 3.x #11569'
+# https://github.com/microsoft/azure-pipelines-tasks/issues/11569
+    version: 3.0.x
+#   version: 3.x
+- template: warp.yml
+  parameters:
+    runtime: ${{ parameters.runtime }}
+    project: 'ironmunge'
+    outputPath: ${{ parameters.outputPath }}
+- template: warp.yml
+  parameters:
+    runtime: ${{ parameters.runtime }}
+    project: 'SaveManager'
+    outputPath: ${{ parameters.outputPath }}
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: ${{ parameters.outputPath }}
