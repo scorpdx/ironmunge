@@ -128,7 +128,7 @@ namespace SaveManager
             {
                 //var res = await git.ArchiveAsync(commit.Hash, saveGamePath, options: new GitArguments.ArchiveOptions(format: "zip", paths: new[] { saveGameName, "meta" }));
                 using (var writeStream = File.Create(saveGamePath))
-                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, false, LibCK2.SaveGame.SaveGameEncoding))
+                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, false, CK2Settings.SaveGameEncoding))
                 {
                     saveZip.CreateEntryFromFile(saveContents.save, saveGameName);
                     saveZip.CreateEntryFromFile(saveContents.meta, "meta");
@@ -148,14 +148,14 @@ namespace SaveManager
             }
         }
 
-        static string DefaultSaveDir => LibCK2.SaveGame.SaveGameLocation;
+        static string DefaultSaveDir => CK2Settings.SaveGameLocation;
 
         static void Main(string[] args)
         {
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
-                    var task = InteractiveRestoreAsync(o.GitLocation ?? GitHelpers.DefaultGitPath, o.SaveGameLocation ?? DefaultSaveDir, o.SaveHistoryLocation ?? DefaultSaveDir);
+                    var task = InteractiveRestoreAsync(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation ?? DefaultSaveDir, o.SaveHistoryLocation ?? DefaultSaveDir);
                     task.Wait();
                 })
                 .WithNotParsed(o =>
