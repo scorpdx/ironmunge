@@ -1,22 +1,7 @@
 jobs:
-- job: 'Publish_Assets_Scripts'
-  pool:
-    vmImage: 'ubuntu-16.04'
-  variables:
-    buildConfiguration: 'Release'
-  steps:
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: '$(Build.SourcesDirectory)/assets/'
-      ArtifactName: 'assets'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: '$(Build.SourcesDirectory)/build/'
-      ArtifactName: 'buildscripts'
-
 - job: 'Publish_Linux_x64'
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-latest'
   variables:
     buildConfiguration: 'Release'
   steps:
@@ -27,7 +12,7 @@ jobs:
 
 - job: 'Publish_macOS_x64'
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-latest'
   variables:
     buildConfiguration: 'Release'
   steps:
@@ -38,11 +23,9 @@ jobs:
 
 - job: 'Publish_Windows_x64'
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-latest'
   variables:
     buildConfiguration: 'Release'
-  workspace:
-    clean: outputs
   steps:
   - template: publish-rid.yml
     parameters:
@@ -51,11 +34,9 @@ jobs:
 
 - job: 'Publish_Windows_x86'
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-latest'
   variables:
     buildConfiguration: 'Release'
-  workspace:
-    clean: outputs
   steps:
   - template: publish-rid.yml
     parameters:
