@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Chronicler;
 using corgit;
-using LibCK2;
+using ironmunge.Common;
 
 namespace ironmunge
 {
@@ -55,7 +57,7 @@ namespace ironmunge
 
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
 
-            using (var zip = new ZipArchive(File.OpenRead(savePath), ZipArchiveMode.Read, false, SaveGame.SaveGameEncoding))
+            using (var zip = new ZipArchive(File.OpenRead(savePath), ZipArchiveMode.Read, false, CK2Settings.SaveGameEncoding))
             {
                 var outputs = zip.Entries.Select(entry => new { entry, outputPath = Path.Combine(historyDir, entry.FullName) });
                 foreach (var a in outputs)
@@ -69,7 +71,7 @@ namespace ironmunge
             return await AddGitSaveAsync(historyDir);
         }
 
-        private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir)
+        private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
         {
             var corgit = new Corgit(GitPath, historyDir);
             await corgit.AddAsync(); //stage all
@@ -82,27 +84,46 @@ namespace ironmunge
             string gameDescription;
 
             var metaName = Path.Combine(historyDir, "meta");
-            using (var meta = File.OpenRead(metaName))
+            var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
             {
-                var parsedMeta = await SaveGame.ParseAsync(meta);
-                gameDescription = GetGameDescription(parsedMeta);
+                var metaJson = await CK2Json.ParseFileAsync(metaName);
+                gameDescription = GetGameDescription(metaJson);
+            }
+
+            if (extendedDescription)
+            {
+                var sbDescription = new StringBuilder(gameDescription);
+
+                var ck2json = await CK2Json.ParseFileAsync(saveName);
+
+                var chronicleCollection = ChronicleCollection.Parse(ck2json);
+                var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
+                                         from chapter in chronicle.Chapters
+                                         where chapter.Entries.Any()
+                                         select chapter).Last();
+                foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
+                {
+                    sbDescription.AppendLine().AppendLine().Append(entry);
+                }
+
+                gameDescription = sbDescription.ToString();
             }
 
             var result = await corgit.CommitAsync(gameDescription);
-            if(result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
+            if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
             {
                 var setUrl = await corgit.RunGitAsync($"remote set-url origin {Remote}");
-                if(setUrl.ExitCode != 0)
+                if (setUrl.ExitCode != 0)
                 {
                     var addRemote = await corgit.RunGitAsync($"remote add origin {Remote}");
-                    if(addRemote.ExitCode != 0)
+                    if (addRemote.ExitCode != 0)
                     {
                         throw new InvalidOperationException($"Configuring remote failed: {setUrl} {addRemote}");
                     }
                 }
 
                 var push = await corgit.RunGitAsync("push");
-                if(push.ExitCode != 0)
+                if (push.ExitCode != 0)
                 {
                     throw new InvalidOperationException($"Pushing remote failed: {push}");
                 }
@@ -111,7 +132,7 @@ namespace ironmunge
             return (gameDescription, result.Output);
         }
 
-        private static string GetGameDescription(SaveGame saveGame)
-            => $"[{saveGame.Date}] {saveGame.PlayerName}";
+        private static string GetGameDescription(System.Text.Json.JsonDocument doc)
+            => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
     }
 }
