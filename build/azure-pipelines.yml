@@ -1,4 +1,17 @@
 jobs:
+- job: 'Publish_Assets_Scripts'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.SourcesDirectory)/assets/'
+      ArtifactName: 'assets'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.SourcesDirectory)/build/'
+      ArtifactName: 'buildscripts'
+
 - job: 'Publish_Linux_x64'
   pool:
     vmImage: 'ubuntu-latest'
