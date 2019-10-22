@@ -16,8 +16,8 @@ namespace ironmunge
         private static bool NotificationSoundsPresent()
             => File.Exists(FailureSound) && File.Exists(PendingSound) && File.Exists(SuccessSound);
 
-        private Task NotificationAsync(string path)
-            => PlayNotifications ? SoundUtilities.PlayAsync(path) : Task.CompletedTask;
+        private Task NotificationAsync(string path, float volume = 1.0f)
+            => PlayNotifications ? SoundUtilities.PlayAsync(path, volume) : Task.CompletedTask;
 
         private readonly SaveHistory _history;
         private readonly FileSystemWatcher _watcher;
@@ -93,7 +93,7 @@ namespace ironmunge
                 {
                     string tmpPath = Path.GetTempFileName();
 
-                    var pendingProgress = new Progress<TimeSpan>(async t => await NotificationAsync(PendingSound));
+                    var pendingProgress = new Progress<TimeSpan>(async t => await NotificationAsync(PendingSound, (float)Math.Sin(t.TotalSeconds)));
                     await FileUtilities.CopyWithRetryAsync(filepath, tmpPath, MaximumWait, cancellationSource.Token, pendingProgress);
 
                     return tmpPath;

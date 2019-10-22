@@ -11,9 +11,7 @@ namespace ironmunge
         {
             var rnd = new Random();
 
-            int waitSeconds = 0;
-            TimeSpan GetWait() => TimeSpan.FromSeconds(waitSeconds) + TimeSpan.FromMilliseconds(rnd.Next(500));
-
+            TimeSpan expWait = TimeSpan.FromMilliseconds(100);
             while (!token.IsCancellationRequested)
             {
                 try
@@ -28,10 +26,11 @@ namespace ironmunge
                 catch (IOException)
                 {
                     //exponential backoff: 0 -> 1 -> 2 -> 4 -> 8 ...
-                    waitSeconds = waitSeconds == 0 ? 1 : waitSeconds * 2;
+                    // reduced from exponential backoff because it's easier to hear nice ticking sounds :)
+                    expWait *= 2;
                 }
 
-                var wait = GetWait();
+                var wait = expWait;
                 //if wait is higher than maximumWait, wait for maximumWait
                 wait = wait > maximumWait ? maximumWait : wait;
 

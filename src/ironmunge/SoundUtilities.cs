@@ -5,13 +5,14 @@ namespace ironmunge
 {
     static class SoundUtilities
     {
-        public static async Task PlayAsync(string path)
+        public static async Task PlayAsync(string path, float volume = 1.0f)
         {
             var tcs = new TaskCompletionSource<bool>();
             
             using (var audioFile = new AudioFileReader(path))
             using (var outputDevice = new WaveOutEvent())
             {
+                outputDevice.Volume = volume;
                 outputDevice.Init(audioFile);
                 outputDevice.PlaybackStopped += (sender, e) =>
                 {
