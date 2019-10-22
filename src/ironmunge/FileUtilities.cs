@@ -7,7 +7,7 @@ namespace ironmunge
 {
     static class FileUtilities
     {
-        public static async Task CopyWithRetryAsync(string sourcePath, string destinationPath, TimeSpan maximumWait, CancellationToken token = default, IProgress<TimeSpan> progress = default)
+        public static async Task CopyWithRetryAsync(string sourcePath, string destinationPath, TimeSpan maximumWait, CancellationToken token = default, IProgress<TimeSpan>? progress = default)
         {
             var rnd = new Random();
 

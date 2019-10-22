@@ -5,13 +5,10 @@
 🛠️ironmunge monitors your save game folder for new saves and stores them in a timeline as you play. You can roll back to a previous save, switch between past and future saves, or play through multiple diverging timelines within the same save.
 
 ## Download
-🛠️ironmunge was last updated in: [**Simple launcher** *(2019-02-23)*](https://github.com/scorpdx/ironmunge/releases/tag/Release-9)! Visit the link or view the Releases page to download it.
+🛠️ironmunge was last updated in: [**Chronicles!** *(2019-10-19)*](https://github.com/scorpdx/ironmunge/releases/tag/Release-11). Visit the link or view the Releases page to download it.
 
 The major changes in this release are:
-* Simple launchers for `ironmunge` and `SaveManager`
-  - There is now a single executable file for each, and no big folder full of dependencies
-* Additional settings to make sure saves aren't modified from miscellaneous files in a save history folder
-* Safety checks to make sure notification sounds aren't missing at startup
+* Chronicle support has been added, so you can see your ruler's latest exploits in the checkpoint view!
 
 ## Features
 
@@ -31,4 +28,4 @@ The major changes in this release are:
 ## Discussion
 Feedback? Need help? Please [ask on Discord](https://discord.gg/wC3fCgQ) for support.
 
-Forum discussion is on [/r/CrusaderKings](https://www.reddit.com/r/CrusaderKings/comments/arltdw/ironmunge_a_save_manager_for_crusader_kings_ii/) and [the Paradox Interactive forums](https://forum.paradoxplaza.com/forum/index.php?threads/%EF%B8%8Fironmunge-a-save-manager-for-crusader-kings-ii.1153339/).
+Forum discussion is on [the Paradox Interactive forums](https://forum.paradoxplaza.com/forum/index.php?threads/%EF%B8%8Fironmunge-a-save-manager-for-crusader-kings-ii.1153339/).

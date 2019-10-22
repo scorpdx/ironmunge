@@ -88,7 +88,7 @@ namespace SaveManager
 
         public static void ConsoleWriteColored(ReadOnlySpan<char> formattedText)
         {
-            Action completeWrite = null;
+            Action? completeWrite = null;
             do
             {
                 formattedText = ParseColorFormat(formattedText, out Action write);
