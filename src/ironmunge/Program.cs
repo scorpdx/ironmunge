@@ -22,6 +22,8 @@ namespace ironmunge
     {
         const string IronmungeMutexName = "ironmunge";
 
+        const string PluginPathsFilename = "plugins.txt";
+
         static string DefaultSaveDir => CK2Settings.SaveGameLocation;
 
         static void Main(string[] args)
@@ -72,64 +74,40 @@ namespace ironmunge
 
         static void LoadPlugins()
         {
-            string[] pluginPaths = new string[]
+            IEnumerable<string> pluginPaths;
+            try
             {
-                @"..\src\HelloPlugin\bin\Debug\netcoreapp3.0\HelloPlugin.dll",
-                // Paths to plugins to load.
-            };
+                pluginPaths = File.ReadLines(PluginPathsFilename);
+            } catch(FileNotFoundException)
+            { //intended
+                return;
+            }
 
             var mungers = pluginPaths
                 .Select(LoadPlugin)
-                .SelectMany(CreateCommands);
+                .SelectMany(CreateMungers);
 
             foreach (var munger in mungers)
             {
-                Console.WriteLine($"{munger.Name}\t - {munger.Description}");
+                Console.WriteLine($"Loaded munger {munger.Name}");
             }
-
-
         }
 
         static Assembly LoadPlugin(string relativePath)
         {
-            // Navigate up to the solution root
-            string root = Path.GetFullPath(Path.Combine(
-                Path.GetDirectoryName(
-                    Path.GetDirectoryName(
-                        Path.GetDirectoryName(
-                            Path.GetDirectoryName(
-                                Path.GetDirectoryName(typeof(Program).Assembly.Location)))))));
+            string root = Path.GetFullPath(typeof(Program).Assembly.Location);
+            string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath));
 
-            string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', Path.DirectorySeparatorChar)));
-            Console.WriteLine($"Loading commands from: {pluginLocation}");
+            Console.WriteLine($"Loading mungers from: {pluginLocation}");
             PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
             return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
         }
 
-        static IEnumerable<IMunger> CreateCommands(Assembly assembly)
-        {
-            int count = 0;
-
-            foreach (Type type in assembly.GetTypes())
-            {
-                if (typeof(IMunger).IsAssignableFrom(type))
-                {
-                    IMunger result = Activator.CreateInstance(type) as IMunger;
-                    if (result != null)
-                    {
-                        count++;
-                        yield return result;
-                    }
-                }
-            }
-
-            if (count == 0)
-            {
-                string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
-                throw new ApplicationException(
-                    $"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n" +
-                    $"Available types: {availableTypes}");
-            }
-        }
+        //throw new ApplicationException($"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n")
+        static IEnumerable<IMunger> CreateMungers(Assembly assembly)
+            => assembly.GetTypes()
+                .Where(type => typeof(IMunger).IsAssignableFrom(type))
+                .Select(Activator.CreateInstance)
+                .Cast<IMunger>();
     }
 }
