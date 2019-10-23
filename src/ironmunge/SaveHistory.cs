@@ -72,6 +72,18 @@ namespace ironmunge
             }
         }
 
+        private async ValueTask<(System.Text.Json.JsonDocument json, string jsonPath)> ConvertCk2JsonAsync(string filepath)
+        {
+            var jsonPath = Path.ChangeExtension(filepath, ".json");
+            var json = await CK2Json.ParseFileAsync(filepath);
+
+            await using var jsonStream = File.Create(jsonPath);
+            await using var writer = new System.Text.Json.Utf8JsonWriter(jsonStream);
+            json.WriteTo(writer);
+
+            return (json, jsonPath);
+        }
+
         private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
         {
             var corgit = new Corgit(GitPath, historyDir);
@@ -82,22 +94,18 @@ namespace ironmunge
                 .ToArray();
             if (!statuses.Any()) return default;
 
-            string gameDescription;
-
             var metaName = Path.Combine(historyDir, "meta");
-            var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
-            {
-                var metaJson = await CK2Json.ParseFileAsync(metaName);
-                gameDescription = GetGameDescription(metaJson);
-            }
+            var metaJson = await ConvertCk2JsonAsync(metaName);
 
+            var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
+            var saveJson = await ConvertCk2JsonAsync(saveName);
+
+            var gameDescription = GetGameDescription(metaJson.json);
             if (extendedDescription)
             {
                 var sbDescription = new StringBuilder(gameDescription);
 
-                var ck2json = await CK2Json.ParseFileAsync(saveName);
-
-                var chronicleCollection = ChronicleCollection.Parse(ck2json);
+                var chronicleCollection = ChronicleCollection.Parse(saveJson.json);
                 var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
                                          from chapter in chronicle.Chapters
                                          where chapter.Entries.Any()
