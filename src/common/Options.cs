@@ -12,7 +12,7 @@ namespace ironmunge.Common
         public static string DefaultJsonConverterPath
             => Directory.EnumerateFiles("./Resources/", "ck2json*", SearchOption.TopDirectoryOnly).SingleOrDefault();
 
-        [Option('s', "saveGames", HelpText = "Path of the Crusader Kings save game directory")]
+        [Option('s', "saveGames", HelpText = "Path of the Crusader Kings II save game directory")]
         public string? SaveGameLocation { get; set; }
 
         [Option('h', "saveHistories", HelpText = "Path of the ironmunge save history directory")]
