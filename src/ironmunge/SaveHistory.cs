@@ -56,18 +56,24 @@ namespace ironmunge
 
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
 
-            using (var zip = new ZipArchive(File.OpenRead(savePath), ZipArchiveMode.Read, false, CK2Settings.SaveGameEncoding))
-            {
-                var outputs = zip.Entries.Select(entry => new { entry, outputPath = Path.Combine(historyDir, entry.FullName) });
-                foreach (var a in outputs)
-                {
-                    using (var outputStream = File.Create(a.outputPath))
-                    using (var entryStream = a.entry.Open())
-                        await entryStream.CopyToAsync(outputStream);
-                }
-            }
+            using var zipStream = File.OpenRead(savePath);
+            await UnzipSaveAsync(zipStream, historyDir);
 
             return await AddGitSaveAsync(historyDir);
+        }
+
+        private async ValueTask UnzipSaveAsync(Stream zipStream, string outputDir)
+        {
+            using var zip = new ZipArchive(zipStream, ZipArchiveMode.Read, true, CK2Settings.SaveGameEncoding);
+            foreach (var entry in zip.Entries)
+            {
+                var outputPath = Path.Combine(outputDir, entry.FullName);
+
+                using var outputStream = File.Create(outputPath);
+                using var entryStream = entry.Open();
+
+                await entryStream.CopyToAsync(outputStream);
+            }
         }
 
         private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
