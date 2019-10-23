@@ -119,19 +119,24 @@ namespace ironmunge
             var gameDescription = GetGameDescription(metaJson.json);
             if (extendedDescription)
             {
-                var sbDescription = new StringBuilder(gameDescription);
-
                 var chronicleCollection = ChronicleCollection.Parse(saveJson.json);
                 var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
                                          from chapter in chronicle.Chapters
                                          where chapter.Entries.Any()
-                                         select chapter).Last();
-                foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
-                {
-                    sbDescription.AppendLine().AppendLine().Append(entry);
-                }
+                                         select chapter).LastOrDefault();
 
-                gameDescription = sbDescription.ToString();
+                // on very first save, we will have a chroniclecollection but no entries
+                if (mostRecentChapter != null)
+                {
+                    var sbDescription = new StringBuilder(gameDescription);
+
+                    foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
+                    {
+                        sbDescription.AppendLine().AppendLine().Append(entry);
+                    }
+
+                    gameDescription = sbDescription.ToString();
+                }
             }
 
             var corgit = new Corgit(GitPath, historyDir);
