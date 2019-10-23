@@ -107,12 +107,12 @@ namespace ironmunge
             return null;
         }
 
-        async Task SaveAsync(string path, string name)
+        private async ValueTask SaveAsync(string path, string name)
         {
             try
             {
-                var checkpointName = await _history.AddSaveAsync(path, name);
-                Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}] Saved {name} to history: checkpoint {checkpointName}");
+                var gameDescription = await _history.AddSaveAsync(path, name);
+                Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}] Saved {name} to history: {gameDescription}");
 
                 await NotificationAsync(SuccessSound);
             }
