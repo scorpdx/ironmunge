@@ -50,10 +50,6 @@ namespace ironmunge
 
         public async Task<(string description, string commitId)> AddSaveAsync(string savePath, string filename)
         {
-            var fi = new FileInfo(savePath);
-            if (fi.Length == 0)
-                throw new ArgumentException("Save is empty");
-
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
 
             using var zipStream = File.OpenRead(savePath);
