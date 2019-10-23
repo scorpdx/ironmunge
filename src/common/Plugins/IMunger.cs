@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ironmunge.Plugins
 {
     public interface IMunger
     {
         string Name { get; }
-        string Description { get; }
 
-        int Execute();
+        ValueTask<JsonDocument?> MungeAsync(JsonDocument ck2json, IProgress<string>? progress = null);
     }
 }
