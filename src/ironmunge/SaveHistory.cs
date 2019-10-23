@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Chronicler;
 using corgit;
 using ironmunge.Common;
+using System.Text.Json;
 
 namespace ironmunge
 {
@@ -72,13 +73,17 @@ namespace ironmunge
             }
         }
 
-        private async ValueTask<(System.Text.Json.JsonDocument json, string jsonPath)> ConvertCk2JsonAsync(string filepath)
+        private async ValueTask<(JsonDocument json, string jsonPath)> ConvertCk2JsonAsync(string filepath)
         {
             var jsonPath = Path.ChangeExtension(filepath, ".json");
-            var json = await CK2Json.ParseFileAsync(filepath);
-
             await using var jsonStream = File.Create(jsonPath);
-            await using var writer = new System.Text.Json.Utf8JsonWriter(jsonStream);
+
+            await using var writer = new Utf8JsonWriter(jsonStream,
+                new JsonWriterOptions
+                {
+                    Indented = true
+                });
+            var json = await CK2Json.ParseFileAsync(filepath);
             json.WriteTo(writer);
 
             return (json, jsonPath);
@@ -141,7 +146,7 @@ namespace ironmunge
             return (gameDescription, result.Output);
         }
 
-        private static string GetGameDescription(System.Text.Json.JsonDocument doc)
+        private static string GetGameDescription(JsonDocument doc)
             => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
     }
 }
