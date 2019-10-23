@@ -110,14 +110,6 @@ namespace ironmunge
 
         private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
         {
-            var corgit = new Corgit(GitPath, historyDir);
-            await corgit.AddAsync(); //stage all
-
-            var statuses = (await corgit.StatusAsync())
-                .Select(gfs => gfs.Path)
-                .ToArray();
-            if (!statuses.Any()) return default;
-
             var metaName = Path.Combine(historyDir, "meta");
             var metaJson = await ConvertCk2JsonAsync(metaName);
 
@@ -141,6 +133,14 @@ namespace ironmunge
 
                 gameDescription = sbDescription.ToString();
             }
+
+            var corgit = new Corgit(GitPath, historyDir);
+            await corgit.AddAsync(); //stage all
+
+            var statuses = (await corgit.StatusAsync())
+                .Select(gfs => gfs.Path)
+                .ToArray();
+            if (!statuses.Any()) return default;
 
             var result = await corgit.CommitAsync(gameDescription);
             if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
