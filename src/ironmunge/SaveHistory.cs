@@ -89,6 +89,25 @@ namespace ironmunge
             return (json, jsonPath);
         }
 
+        private async ValueTask GitPushToRemoteAsync(Corgit corgit)
+        {
+            var setUrl = await corgit.RunGitAsync($"remote set-url origin {Remote}");
+            if (setUrl.ExitCode != 0)
+            {
+                var addRemote = await corgit.RunGitAsync($"remote add origin {Remote}");
+                if (addRemote.ExitCode != 0)
+                {
+                    throw new InvalidOperationException($"Configuring remote failed: {setUrl} {addRemote}");
+                }
+            }
+
+            var push = await corgit.RunGitAsync("push");
+            if (push.ExitCode != 0)
+            {
+                throw new InvalidOperationException($"Pushing remote failed: {push}");
+            }
+        }
+
         private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
         {
             var corgit = new Corgit(GitPath, historyDir);
@@ -126,21 +145,7 @@ namespace ironmunge
             var result = await corgit.CommitAsync(gameDescription);
             if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
             {
-                var setUrl = await corgit.RunGitAsync($"remote set-url origin {Remote}");
-                if (setUrl.ExitCode != 0)
-                {
-                    var addRemote = await corgit.RunGitAsync($"remote add origin {Remote}");
-                    if (addRemote.ExitCode != 0)
-                    {
-                        throw new InvalidOperationException($"Configuring remote failed: {setUrl} {addRemote}");
-                    }
-                }
-
-                var push = await corgit.RunGitAsync("push");
-                if (push.ExitCode != 0)
-                {
-                    throw new InvalidOperationException($"Pushing remote failed: {push}");
-                }
+                await GitPushToRemoteAsync(corgit);
             }
 
             return (gameDescription, result.Output);
