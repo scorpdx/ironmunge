@@ -49,7 +49,7 @@ namespace ironmunge
             return path;
         }
 
-        public async Task<(string description, string commitId)> AddSaveAsync(string savePath, string filename)
+        public async ValueTask<string> AddSaveAsync(string savePath, string filename)
         {
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
 
@@ -108,7 +108,7 @@ namespace ironmunge
             }
         }
 
-        private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
+        private async ValueTask<string> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
         {
             var metaName = Path.Combine(historyDir, "meta");
             var metaJson = await ConvertCk2JsonAsync(metaName);
@@ -143,17 +143,17 @@ namespace ironmunge
             await corgit.AddAsync(); //stage all
 
             var statuses = (await corgit.StatusAsync())
-                .Select(gfs => gfs.Path)
-                .ToArray();
-            if (!statuses.Any()) return default;
-
-            var result = await corgit.CommitAsync(gameDescription);
-            if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
+                .Select(gfs => gfs.Path);
+            if (statuses.Any())
             {
-                await GitPushToRemoteAsync(corgit);
+                var result = await corgit.CommitAsync(gameDescription);
+                if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
+                {
+                    await GitPushToRemoteAsync(corgit);
+                }
             }
 
-            return (gameDescription, result.Output);
+            return gameDescription;
         }
 
         private static string GetGameDescription(JsonDocument doc)
