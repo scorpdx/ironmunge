@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "src\common\common
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{210F8A97-F4C9-482A-8B43-154677EEDD27}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloPlugin", "src\HelloPlugin\HelloPlugin.csproj", "{69C9C480-FA53-48BB-93E0-2A81FE0651B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChronicleMunger", "src\plugins\ChronicleMunger\ChronicleMunger.csproj", "{69C9C480-FA53-48BB-93E0-2A81FE0651B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
