@@ -2,12 +2,12 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Chronicler;
 using corgit;
 using ironmunge.Common;
 using System.Text.Json;
+using ironmunge.Plugins;
+using System.Collections.Generic;
 
 namespace ironmunge
 {
@@ -21,11 +21,14 @@ namespace ironmunge
 
         public string? Remote { get; }
 
-        public SaveHistory(string baseDirectory, string gitPath, string? remote = null)
+        public System.Collections.Concurrent.ConcurrentBag<IMunger> Mungers { get; }
+
+        public SaveHistory(string baseDirectory, string gitPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
         {
             this.BaseDirectory = baseDirectory;
             this.GitPath = gitPath;
             this.Remote = remote;
+            this.Mungers = new System.Collections.Concurrent.ConcurrentBag<IMunger>(plugins ?? Enumerable.Empty<IMunger>());
         }
 
         private async ValueTask<string> InitializeHistoryDirectoryAsync(string filename)
@@ -108,36 +111,42 @@ namespace ironmunge
             }
         }
 
-        private async ValueTask<string> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
+        private async ValueTask<string> AddGitSaveAsync(string historyDir)
         {
             var metaName = Path.Combine(historyDir, "meta");
-            var metaJson = await ConvertCk2JsonAsync(metaName);
+            var (metaJson, _) = await ConvertCk2JsonAsync(metaName);
 
             var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
-            var saveJson = await ConvertCk2JsonAsync(saveName);
+            var (saveJson, _) = await ConvertCk2JsonAsync(saveName);
 
-            var gameDescription = GetGameDescription(metaJson.json);
-            if (extendedDescription)
-            {
-                var chronicleCollection = ChronicleCollection.Parse(saveJson.json);
-                var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
-                                         from chapter in chronicle.Chapters
-                                         where chapter.Entries.Any()
-                                         select chapter).LastOrDefault();
+            var gameDescription = GetGameDescription(metaJson);
+            var mungerTasks = from munger in Mungers
+                              let mungerProgress = new Progress<string>(s => Console.WriteLine($"[{munger.Name}] {s}"))
+                              select munger.MungeAsync(saveJson, mungerProgress);
 
-                // on very first save, we will have a chroniclecollection but no entries
-                if (mostRecentChapter != null)
-                {
-                    var sbDescription = new StringBuilder(gameDescription);
+            await Task.WhenAll(mungerTasks.Select(vt => vt.AsTask()));
 
-                    foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
-                    {
-                        sbDescription.AppendLine().AppendLine().Append(entry);
-                    }
+            //if (extendedDescription)
+            //{
+            //    var chronicleCollection = ChronicleCollection.Parse(saveJson);
+            //    var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
+            //                             from chapter in chronicle.Chapters
+            //                             where chapter.Entries.Any()
+            //                             select chapter).LastOrDefault();
 
-                    gameDescription = sbDescription.ToString();
-                }
-            }
+            //    // on very first save, we will have a chroniclecollection but no entries
+            //    if (mostRecentChapter != null)
+            //    {
+            //        var sbDescription = new StringBuilder(gameDescription);
+
+            //        foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
+            //        {
+            //            sbDescription.AppendLine().AppendLine().Append(entry);
+            //        }
+
+            //        gameDescription = sbDescription.ToString();
+            //    }
+            //}
 
             var corgit = new Corgit(GitPath, historyDir);
             await corgit.AddAsync(); //stage all
