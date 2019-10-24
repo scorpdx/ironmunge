@@ -1,1 +1,1 @@
-﻿Plugins/ChronicleMunger.1.0.0.nupkg
+﻿Plugins/ChronicleMunger.dll

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ironmunge.Plugins;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +29,7 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public ChangeMonitoring(string gitPath, string savePath, string historyPath, string? remote = null)
+        public ChangeMonitoring(string gitPath, string savePath, string historyPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -39,7 +40,7 @@ namespace ironmunge
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
-            _history = new SaveHistory(historyPath, gitPath, remote);
+            _history = new SaveHistory(historyPath, gitPath, remote, plugins);
 
             _watcher = new FileSystemWatcher(savePath)
             {
