@@ -41,12 +41,11 @@ namespace ironmunge
                         return;
                     }
 
-                    LoadPlugins();
-
                     using (var cm = new ChangeMonitoring(o.GitLocation ?? Options.DefaultGitPath,
                                                          o.SaveGameLocation ?? DefaultSaveDir,
                                                          o.SaveHistoryLocation ?? DefaultSaveDir,
-                                                         o.Remote))
+                                                         o.Remote,
+                                                         LoadPlugins()))
                     {
                         cm.PlayNotifications = o.Notifications;
                         Console.WriteLine("ironmunge is now running.");
@@ -72,7 +71,7 @@ namespace ironmunge
                 });
         }
 
-        static void LoadPlugins()
+        static IEnumerable<IMunger> LoadPlugins()
         {
             IEnumerable<string> pluginPaths;
             try
@@ -80,7 +79,7 @@ namespace ironmunge
                 pluginPaths = File.ReadLines(PluginPathsFilename);
             } catch(FileNotFoundException)
             { //intended
-                return;
+                yield break;
             }
 
             var mungers = pluginPaths
@@ -90,12 +89,14 @@ namespace ironmunge
             foreach (var munger in mungers)
             {
                 Console.WriteLine($"Loaded munger {munger.Name}");
+                yield return munger;
             }
         }
 
         static Assembly LoadPlugin(string relativePath)
         {
-            string root = Path.GetFullPath(typeof(Program).Assembly.Location);
+            string root = Path.GetDirectoryName(Path.GetFullPath(typeof(Program).Assembly.Location))
+                ?? throw new InvalidOperationException("Could not determine assembly root path");
             string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath));
 
             Console.WriteLine($"Loading mungers from: {pluginLocation}");

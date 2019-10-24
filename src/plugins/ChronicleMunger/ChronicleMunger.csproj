@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
+
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Chronicler" Version="0.3.0">
-    </PackageReference>
+    <PackageReference Include="Chronicler" Version="0.3.0" />
   </ItemGroup>
 
   <ItemGroup>
