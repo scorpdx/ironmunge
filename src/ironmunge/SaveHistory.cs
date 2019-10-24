@@ -120,33 +120,18 @@ namespace ironmunge
             var (saveJson, _) = await ConvertCk2JsonAsync(saveName);
 
             var gameDescription = GetGameDescription(metaJson);
-            var mungerTasks = from munger in Mungers
+            var mungerTasks = (from munger in Mungers
                               let mungerProgress = new Progress<string>(s => Console.WriteLine($"[{munger.Name}] {s}"))
-                              select munger.MungeAsync(saveJson, mungerProgress);
+                              select munger.MungeAsync(historyDir, (saveJson, metaJson), mungerProgress)).ToArray();
 
-            await Task.WhenAll(mungerTasks.Select(vt => vt.AsTask()));
-
-            //if (extendedDescription)
-            //{
-            //    var chronicleCollection = ChronicleCollection.Parse(saveJson);
-            //    var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
-            //                             from chapter in chronicle.Chapters
-            //                             where chapter.Entries.Any()
-            //                             select chapter).LastOrDefault();
-
-            //    // on very first save, we will have a chroniclecollection but no entries
-            //    if (mostRecentChapter != null)
-            //    {
-            //        var sbDescription = new StringBuilder(gameDescription);
-
-            //        foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
-            //        {
-            //            sbDescription.AppendLine().AppendLine().Append(entry);
-            //        }
-
-            //        gameDescription = sbDescription.ToString();
-            //    }
-            //}
+            foreach (var task in mungerTasks)
+            {
+                var extendedDescription = await task;
+                if (!string.IsNullOrWhiteSpace(extendedDescription))
+                {
+                    gameDescription += extendedDescription;
+                }
+            }
 
             var corgit = new Corgit(GitPath, historyDir);
             await corgit.AddAsync(); //stage all
