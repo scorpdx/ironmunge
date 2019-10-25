@@ -41,7 +41,7 @@ namespace ironmunge
                         return;
                     }
 
-                    using (var cm = new ChangeMonitoring(o.GitLocation ?? Options.DefaultGitPath,
+                    using (var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
                                                          o.SaveGameLocation ?? DefaultSaveDir,
                                                          o.SaveHistoryLocation ?? DefaultSaveDir,
                                                          o.Remote,
