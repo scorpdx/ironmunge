@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ironmunge
 {
-    public class ChangeMonitoring : IDisposable
+    public class SaveMonitoring : IDisposable
     {
         private const string FailureSound = "Resources/failure.wav";
         private const string PendingSound = "Resources/pending.wav";
@@ -29,7 +29,7 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public ChangeMonitoring(string gitPath, string savePath, string historyPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
+        public SaveMonitoring(string gitPath, string savePath, string historyPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
