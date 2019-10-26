@@ -48,9 +48,6 @@ namespace ironmunge
             };
 
             _watcher.Changed += CopyAndSave;
-            _watcher.Created += CopyAndSave;
-            _watcher.Renamed += CopyAndSave;
-
             _watcher.EnableRaisingEvents = true;
         }
 
@@ -58,7 +55,9 @@ namespace ironmunge
         {
             bool ownsSave = false;
             string? copyPath = null;
+            Task pendingSound = Task.CompletedTask;
 
+            using var cts = new CancellationTokenSource();
             try
             {
                 ownsSave = _pendingSaves.TryAdd(e.FullPath, default);
@@ -69,10 +68,27 @@ namespace ironmunge
                 if (string.IsNullOrEmpty(copyPath))
                     return;
 
+                pendingSound = Task.Run(() => PlayPendingNotificationJingle(cts.Token), cts.Token);
                 await SaveAsync(copyPath, e.Name);
+
+                cts.Cancel();
+                await pendingSound;
+
+                await NotificationAsync(SuccessSound);
+            }
+            catch (Exception ex)
+            {
+                cts.Cancel();
+                await pendingSound;
+
+                await NotificationAsync(FailureSound);
+                Console.Error.WriteLine(ex);
             }
             finally
             {
+                cts.Dispose();
+                pendingSound?.Dispose();
+
                 if (ownsSave)
                 {
                     _pendingSaves.Remove(e.FullPath, out _);
@@ -85,20 +101,51 @@ namespace ironmunge
             }
         }
 
-        async Task<string?> CopySaveAsync(string filepath)
+        async Task PlayPendingNotificationJingle(CancellationToken token)
         {
             try
             {
-                var timeout = MaximumWait * 3;
-                using (var cancellationSource = new CancellationTokenSource(timeout))
+                await HelperUtilities.RetryWithExponentialBackoff(async () =>
                 {
-                    string tmpPath = Path.GetTempFileName();
+                    await NotificationAsync(PendingSound);
+                    return false;
+                }, TimeSpan.FromSeconds(5), token);
+            }
+            catch (OperationCanceledException)
+            {
+                //expected
+            }
+        }
 
-                    var pendingProgress = new Progress<TimeSpan>(async t => await NotificationAsync(PendingSound));
-                    await FileUtilities.CopyWithRetryAsync(filepath, tmpPath, MaximumWait, cancellationSource.Token, pendingProgress);
-
-                    return tmpPath;
+        async Task<string?> CopySaveAsync(string filepath)
+        {
+            static async ValueTask<bool> CopyToTempAsync(string sourcePath, string destinationPath, CancellationToken token = default)
+            {
+                try
+                {
+                    using var fsIn = File.OpenRead(sourcePath);
+                    using var fsOut = File.Create(destinationPath);
+                    await fsIn.CopyToAsync(fsOut, token);
+                    token.ThrowIfCancellationRequested();
+                    return true;
                 }
+                catch (IOException)
+                {
+                    return false;
+                }
+            }
+
+            try
+            {
+                var timeout = MaximumWait * 3;
+                string tmpPath = Path.GetTempFileName();
+
+                using var cancellationSource = new CancellationTokenSource(timeout);
+                await HelperUtilities.RetryWithExponentialBackoff(async () => await CopyToTempAsync(filepath, tmpPath, cancellationSource.Token),
+                                                                  MaximumWait,
+                                                                  cancellationSource.Token);
+
+                return tmpPath;
             }
             catch (TaskCanceledException)
             {
@@ -110,18 +157,8 @@ namespace ironmunge
 
         private async ValueTask SaveAsync(string path, string name)
         {
-            try
-            {
-                var gameDescription = await _history.AddSaveAsync(path, name);
-                Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}] Saved {name} to history: {gameDescription}");
-
-                await NotificationAsync(SuccessSound);
-            }
-            catch (Exception e)
-            {
-                await NotificationAsync(FailureSound);
-                Console.Error.WriteLine(e);
-            }
+            var gameDescription = await _history.AddSaveAsync(path, name);
+            Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}] Saved {name} to history: {gameDescription}");
         }
 
         #region IDisposable Support
