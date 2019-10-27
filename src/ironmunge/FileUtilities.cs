@@ -18,12 +18,11 @@ namespace ironmunge
             {
                 try
                 {
-                    using (var fsIn = File.OpenRead(sourcePath))
-                    using (var fsOut = File.Create(destinationPath))
-                    {
-                        await fsIn.CopyToAsync(fsOut);
-                        return;
-                    }
+                    using var fsIn = File.OpenRead(sourcePath);
+                    using var fsOut = File.Create(destinationPath);
+
+                    await fsIn.CopyToAsync(fsOut, token);
+                    break;
                 }
                 catch (IOException)
                 {
