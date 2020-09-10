@@ -67,7 +67,7 @@ namespace ironmunge
                     return;
 
                 copyPath = await CopySaveAsync(e.FullPath);
-                if (string.IsNullOrEmpty(copyPath))
+                if (string.IsNullOrEmpty(copyPath) || string.IsNullOrEmpty(e.Name))
                     return;
 
                 await SaveAsync(copyPath, e.Name);
@@ -91,15 +91,14 @@ namespace ironmunge
             try
             {
                 var timeout = MaximumWait * 3;
-                using (var cancellationSource = new CancellationTokenSource(timeout))
-                {
-                    string tmpPath = Path.GetTempFileName();
+                string tmpPath = Path.GetTempFileName();
 
-                    var pendingProgress = new Progress<TimeSpan>(async t => await NotificationAsync(PendingSound));
-                    await FileUtilities.CopyWithRetryAsync(filepath, tmpPath, MaximumWait, cancellationSource.Token, pendingProgress);
+                var pendingProgress = new Progress<TimeSpan>(async t => await NotificationAsync(PendingSound));
 
-                    return tmpPath;
-                }
+                using var cancellationSource = new CancellationTokenSource(timeout);
+                await FileUtilities.CopyWithRetryAsync(filepath, tmpPath, MaximumWait, cancellationSource.Token, pendingProgress);
+
+                return tmpPath;
             }
             catch (TaskCanceledException)
             {
@@ -126,7 +125,7 @@ namespace ironmunge
         }
 
         #region IDisposable Support
-        private bool disposedValue = false;
+        private bool disposedValue;
 
         protected virtual void Dispose(bool disposing)
         {
@@ -143,6 +142,7 @@ namespace ironmunge
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }
