@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{398B1DD8
 		build\publish-rid.yml = build\publish-rid.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "src\common\common.csproj", "{6830F1FB-7903-4756-9378-3884B928BDA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ironmunge.Common", "src\common\Ironmunge.Common.csproj", "{6830F1FB-7903-4756-9378-3884B928BDA7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{210F8A97-F4C9-482A-8B43-154677EEDD27}"
 EndProject

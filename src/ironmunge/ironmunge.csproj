@@ -28,10 +28,9 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
     <PackageReference Include="corgit" Version="0.3.0" />
-    <PackageReference Include="NAudio" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\common\common.csproj" />
+    <ProjectReference Include="..\common\Ironmunge.Common.csproj" />
   </ItemGroup>
 </Project>
