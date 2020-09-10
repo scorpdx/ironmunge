@@ -14,7 +14,3 @@ steps:
 - script: dotnet publish -c Release -r ${{ parameters.runtime }} -o ${{ parameters.outputPath }}
   workingDirectory: 'src/plugins/ChronicleMunger'
   displayName: 'dotnet publish: plugin - ChronicleMunger'
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: ${{ parameters.outputPath }}
-    ArtifactName: 'pub-${{ parameters.runtime }}-plugins'
