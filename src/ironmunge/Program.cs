@@ -97,9 +97,7 @@ namespace ironmunge
 
         static Assembly LoadPlugin(string relativePath)
         {
-            string root = Path.GetDirectoryName(Path.GetFullPath(typeof(Program).Assembly.Location))
-                ?? throw new InvalidOperationException("Could not determine assembly root path");
-            string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath));
+            string pluginLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, relativePath));
 
             Console.WriteLine($"Loading mungers from: {pluginLocation}");
             PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);

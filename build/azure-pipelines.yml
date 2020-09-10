@@ -18,6 +18,10 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
+  - template: publish-plugins.yml
+    parameters:
+      runtime: 'linux-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/linux-x64/plugins'
   - template: publish-rid.yml
     parameters:
       runtime: 'linux-x64'
@@ -29,6 +33,10 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
+  - template: publish-plugins.yml
+    parameters:
+      runtime: 'osx-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/osx-x64/plugins'
   - template: publish-rid.yml
     parameters:
       runtime: 'osx-x64'
@@ -40,6 +48,10 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
+  - template: publish-plugins.yml
+    parameters:
+      runtime: 'win-x64'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x64/plugins'
   - template: publish-rid.yml
     parameters:
       runtime: 'win-x64'
@@ -51,6 +63,10 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
+  - template: publish-plugins.yml
+    parameters:
+      runtime: 'win-x86'
+      outputPath: '$(Build.ArtifactStagingDirectory)/pub/win-x86/plugins'
   - template: publish-rid.yml
     parameters:
       runtime: 'win-x86'

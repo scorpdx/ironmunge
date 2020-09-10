@@ -1,0 +1,16 @@
+parameters:
+  runtime: ''
+  outputPath: ''
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET sdk >=5.x'
+  inputs:
+    packageType: sdk
+# workaround for 'UseDotNet@2 cant find sdk version matching 3.x #11569'
+# https://github.com/microsoft/azure-pipelines-tasks/issues/11569
+    version: 5.x
+    includePreviewVersions: true
+- script: dotnet publish -c Release -r ${{ parameters.runtime }} -o ${{ parameters.outputPath }}
+  workingDirectory: 'src/plugins/ChronicleMunger'
+  displayName: 'dotnet publish: plugin - ChronicleMunger'
