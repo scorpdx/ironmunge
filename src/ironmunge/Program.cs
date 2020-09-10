@@ -41,21 +41,23 @@ namespace ironmunge
                         return;
                     }
 
-                    using (var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
+#pragma warning disable CS8604 // Possible null reference argument.
+                    using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
+#pragma warning restore CS8604 // Possible null reference argument.
                                                          o.SaveGameLocation ?? DefaultSaveDir,
                                                          o.SaveHistoryLocation ?? DefaultSaveDir,
                                                          o.Remote,
-                                                         LoadPlugins()))
+                                                         LoadPlugins())
                     {
-                        cm.PlayNotifications = o.Notifications;
-                        Console.WriteLine("ironmunge is now running.");
-                        Console.WriteLine("Press ESCAPE to exit.");
+                        PlayNotifications = o.Notifications
+                    };
+                    Console.WriteLine("ironmunge is now running.");
+                    Console.WriteLine("Press ESCAPE to exit.");
 
-                        ConsoleKeyInfo key;
-                        while ((key = Console.ReadKey()).Key != ConsoleKey.Escape)
-                        {
-                            //wait for key to exit
-                        }
+                    ConsoleKeyInfo key;
+                    while ((key = Console.ReadKey()).Key != ConsoleKey.Escape)
+                    {
+                        //wait for key to exit
                     }
                 })
                 .WithNotParsed(o =>
