@@ -16,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{398B1DD8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "src\common\common.csproj", "{6830F1FB-7903-4756-9378-3884B928BDA7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{210F8A97-F4C9-482A-8B43-154677EEDD27}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChronicleMunger", "src\plugins\ChronicleMunger\ChronicleMunger.csproj", "{69C9C480-FA53-48BB-93E0-2A81FE0651B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,9 +38,16 @@ Global
 		{6830F1FB-7903-4756-9378-3884B928BDA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6830F1FB-7903-4756-9378-3884B928BDA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6830F1FB-7903-4756-9378-3884B928BDA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{69C9C480-FA53-48BB-93E0-2A81FE0651B4} = {210F8A97-F4C9-482A-8B43-154677EEDD27}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7ADE3774-E4CC-4BCB-8F43-5B2718180A48}

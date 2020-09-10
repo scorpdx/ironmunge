@@ -2,11 +2,12 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Chronicler;
 using corgit;
 using ironmunge.Common;
+using System.Text.Json;
+using ironmunge.Plugins;
+using System.Collections.Generic;
 
 namespace ironmunge
 {
@@ -20,11 +21,14 @@ namespace ironmunge
 
         public string? Remote { get; }
 
-        public SaveHistory(string baseDirectory, string gitPath, string? remote = null)
+        public System.Collections.Concurrent.ConcurrentBag<IMunger> Mungers { get; }
+
+        public SaveHistory(string baseDirectory, string gitPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
         {
             this.BaseDirectory = baseDirectory;
             this.GitPath = gitPath;
             this.Remote = remote;
+            this.Mungers = new System.Collections.Concurrent.ConcurrentBag<IMunger>(plugins ?? Enumerable.Empty<IMunger>());
         }
 
         private async ValueTask<string> InitializeHistoryDirectoryAsync(string filename)
@@ -48,90 +52,105 @@ namespace ironmunge
             return path;
         }
 
-        public async Task<(string description, string commitId)> AddSaveAsync(string savePath, string filename)
+        public async ValueTask<string> AddSaveAsync(string savePath, string filename)
         {
-            var fi = new FileInfo(savePath);
-            if (fi.Length == 0)
-                throw new ArgumentException("Save is empty");
-
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
 
-            using (var zip = new ZipArchive(File.OpenRead(savePath), ZipArchiveMode.Read, false, CK2Settings.SaveGameEncoding))
-            {
-                var outputs = zip.Entries.Select(entry => new { entry, outputPath = Path.Combine(historyDir, entry.FullName) });
-                foreach (var a in outputs)
-                {
-                    using (var outputStream = File.Create(a.outputPath))
-                    using (var entryStream = a.entry.Open())
-                        await entryStream.CopyToAsync(outputStream);
-                }
-            }
+            using var zipStream = File.OpenRead(savePath);
+            await UnzipSaveAsync(zipStream, historyDir);
 
             return await AddGitSaveAsync(historyDir);
         }
 
-        private async Task<(string description, string commitId)> AddGitSaveAsync(string historyDir, bool extendedDescription = true)
+        private async ValueTask UnzipSaveAsync(Stream zipStream, string outputDir)
         {
+            using var zip = new ZipArchive(zipStream, ZipArchiveMode.Read, true, CK2Settings.SaveGameEncoding);
+            foreach (var entry in zip.Entries)
+            {
+                var outputPath = Path.Combine(outputDir, entry.FullName);
+
+                using var outputStream = File.Create(outputPath);
+                using var entryStream = entry.Open();
+
+                await entryStream.CopyToAsync(outputStream);
+            }
+        }
+
+        private async ValueTask<(JsonDocument json, string jsonPath)> ConvertCk2JsonAsync(string filepath)
+        {
+            var jsonPath = Path.ChangeExtension(filepath, ".json");
+            await using var jsonStream = File.Create(jsonPath);
+
+            await using var writer = new Utf8JsonWriter(jsonStream,
+                new JsonWriterOptions
+                {
+                    Indented = true
+                });
+            var json = await CK2Json.ParseFileAsync(filepath);
+            json.WriteTo(writer);
+
+            return (json, jsonPath);
+        }
+
+        private async ValueTask GitPushToRemoteAsync(Corgit corgit)
+        {
+            var setUrl = await corgit.RunGitAsync($"remote set-url origin {Remote}");
+            if (setUrl.ExitCode != 0)
+            {
+                var addRemote = await corgit.RunGitAsync($"remote add origin {Remote}");
+                if (addRemote.ExitCode != 0)
+                {
+                    throw new InvalidOperationException($"Configuring remote failed: {setUrl} {addRemote}");
+                }
+            }
+
+            var push = await corgit.RunGitAsync("push");
+            if (push.ExitCode != 0)
+            {
+                throw new InvalidOperationException($"Pushing remote failed: {push}");
+            }
+        }
+
+        private async ValueTask<string> AddGitSaveAsync(string historyDir)
+        {
+            var metaName = Path.Combine(historyDir, "meta");
+            var (metaJson, _) = await ConvertCk2JsonAsync(metaName);
+
+            var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
+            var (saveJson, _) = await ConvertCk2JsonAsync(saveName);
+
+            var gameDescription = GetGameDescription(metaJson);
+            var mungerTasks = (from munger in Mungers
+                              let mungerProgress = new Progress<string>(s => Console.WriteLine($"[{munger.Name}] {s}"))
+                              select munger.MungeAsync(historyDir, (saveJson, metaJson), mungerProgress)).ToArray();
+
+            foreach (var task in mungerTasks)
+            {
+                var extendedDescription = await task;
+                if (!string.IsNullOrWhiteSpace(extendedDescription))
+                {
+                    gameDescription += extendedDescription;
+                }
+            }
+
             var corgit = new Corgit(GitPath, historyDir);
             await corgit.AddAsync(); //stage all
 
             var statuses = (await corgit.StatusAsync())
-                .Select(gfs => gfs.Path)
-                .ToArray();
-            if (!statuses.Any()) return default;
-
-            string gameDescription;
-
-            var metaName = Path.Combine(historyDir, "meta");
-            var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
+                .Select(gfs => gfs.Path);
+            if (statuses.Any())
             {
-                var metaJson = await CK2Json.ParseFileAsync(metaName);
-                gameDescription = GetGameDescription(metaJson);
-            }
-
-            if (extendedDescription)
-            {
-                var sbDescription = new StringBuilder(gameDescription);
-
-                var ck2json = await CK2Json.ParseFileAsync(saveName);
-
-                var chronicleCollection = ChronicleCollection.Parse(ck2json);
-                var mostRecentChapter = (from chronicle in chronicleCollection.Chronicles
-                                         from chapter in chronicle.Chapters
-                                         where chapter.Entries.Any()
-                                         select chapter).Last();
-                foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
+                var result = await corgit.CommitAsync(gameDescription);
+                if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
                 {
-                    sbDescription.AppendLine().AppendLine().Append(entry);
-                }
-
-                gameDescription = sbDescription.ToString();
-            }
-
-            var result = await corgit.CommitAsync(gameDescription);
-            if (result.ExitCode == 0 && !string.IsNullOrEmpty(Remote))
-            {
-                var setUrl = await corgit.RunGitAsync($"remote set-url origin {Remote}");
-                if (setUrl.ExitCode != 0)
-                {
-                    var addRemote = await corgit.RunGitAsync($"remote add origin {Remote}");
-                    if (addRemote.ExitCode != 0)
-                    {
-                        throw new InvalidOperationException($"Configuring remote failed: {setUrl} {addRemote}");
-                    }
-                }
-
-                var push = await corgit.RunGitAsync("push");
-                if (push.ExitCode != 0)
-                {
-                    throw new InvalidOperationException($"Pushing remote failed: {push}");
+                    await GitPushToRemoteAsync(corgit);
                 }
             }
 
-            return (gameDescription, result.Output);
+            return gameDescription;
         }
 
-        private static string GetGameDescription(System.Text.Json.JsonDocument doc)
+        private static string GetGameDescription(JsonDocument doc)
             => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
     }
 }

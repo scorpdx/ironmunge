@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Chronicler" Version="0.3.0" />
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
+    <PackageReference Include="Humanizer.Core" Version="2.7.9" />
   </ItemGroup>
 
 </Project>

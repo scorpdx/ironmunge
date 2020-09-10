@@ -107,13 +107,10 @@ namespace SaveManager
                 var restoreBranch = await git.CheckoutNewBranchAsync($"restore{currentTime}", startPoint: commit.Hash);
             }
 
-            var historyContents = Directory.EnumerateFiles(historyPath, "*", SearchOption.TopDirectoryOnly);
-            var saveContents = new
-            {
-                save = historyContents.Single(a => Path.GetExtension(a).Equals(".ck2", StringComparison.OrdinalIgnoreCase)),
-                meta = historyContents.Single(a => Path.GetFileName(a).Equals("meta", StringComparison.OrdinalIgnoreCase))
-            };
-            var saveGameName = Path.GetFileName(saveContents.save);
+            var savePath = Directory.EnumerateFiles(historyPath, "*.ck2", SearchOption.TopDirectoryOnly).Single();
+            var metaPath = Directory.EnumerateFiles(historyPath, "meta", SearchOption.TopDirectoryOnly).Single();
+
+            var saveGameName = Path.GetFileName(savePath);
             var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
 
             //make a backup if sg already exists
@@ -126,12 +123,12 @@ namespace SaveManager
 
             try
             {
-                //var res = await git.ArchiveAsync(commit.Hash, saveGamePath, options: new GitArguments.ArchiveOptions(format: "zip", paths: new[] { saveGameName, "meta" }));
-                using (var writeStream = File.Create(saveGamePath))
-                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, false, CK2Settings.SaveGameEncoding))
+                await using (var writeStream = File.Create(saveGamePath))
+                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CK2Settings.SaveGameEncoding))
                 {
-                    saveZip.CreateEntryFromFile(saveContents.save, saveGameName);
-                    saveZip.CreateEntryFromFile(saveContents.meta, "meta");
+
+                    saveZip.CreateEntryFromFile(savePath, saveGameName);
+                    saveZip.CreateEntryFromFile(metaPath, "meta");
                 }
 
                 Console.WriteLine("Save restored! You are now on a new timeline.");
