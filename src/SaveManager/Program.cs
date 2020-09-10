@@ -5,7 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using CommandLine;
-using ironmunge.Common;
+using Ironmunge.Common;
 using corgit;
 using System.Threading.Tasks;
 using System.Text;
@@ -24,7 +24,7 @@ namespace SaveManager
                 new
                 {
                     path = dir,
-                    display = Path.GetFileName(dir).Substring("ironmunge_".Length)
+                    display = Path.GetFileName(dir)["ironmunge_".Length..]
                 }).ToArray();
 
             for (int i = 0; i < directoriesDisplay.Length; i++)
@@ -34,7 +34,7 @@ namespace SaveManager
                 Console.WriteLine();
             }
 
-            string selection;
+            string? selection;
             int selectedIndex;
             do
             {
@@ -53,7 +53,7 @@ namespace SaveManager
             Console.WriteLine($"| From oldest to newest");
             Console.WriteLine();
 
-            string selection;
+            string? selection;
             int selectedIndex;
             {
                 var commits = (await git.LogAsync(new GitArguments.LogOptions(maxEntries: null, reverse: true), "*.ck2", "meta")).ToList();
@@ -84,7 +84,7 @@ namespace SaveManager
 
             DisplayCommit(selectedCommit.commit, selectedCommit.index);
 
-            string selection;
+            string? selection;
             do
             {
                 Console.WriteLine("Would you like to restore this save?");
@@ -92,7 +92,7 @@ namespace SaveManager
                 Console.WriteLine();
                 Console.WriteLine("Or leave blank to go back.");
                 Console.Write("> ");
-                selection = Console.ReadLine().Trim().ToUpperInvariant();
+                selection = Console.ReadLine()?.Trim().ToUpperInvariant();
                 if (string.IsNullOrWhiteSpace(selection))
                     return false;
             } while (selection[0] != 'Y');
@@ -104,7 +104,7 @@ namespace SaveManager
         {
             {
                 var currentTime = DateTime.UtcNow.ToString("yyyy''MM''dd'T'HH''mm''ss", CultureInfo.InvariantCulture);
-                var restoreBranch = await git.CheckoutNewBranchAsync($"restore{currentTime}", startPoint: commit.Hash);
+                _ = await git.CheckoutNewBranchAsync($"restore{currentTime}", startPoint: commit.Hash);
             }
 
             var savePath = Directory.EnumerateFiles(historyPath, "*.ck2", SearchOption.TopDirectoryOnly).Single();
@@ -152,7 +152,9 @@ namespace SaveManager
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
+#pragma warning disable CS8604 // Possible null reference argument.
                     var task = InteractiveRestoreAsync(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation ?? DefaultSaveDir, o.SaveHistoryLocation ?? DefaultSaveDir);
+#pragma warning restore CS8604 // Possible null reference argument.
                     task.Wait();
                 })
                 .WithNotParsed(o =>
@@ -203,7 +205,7 @@ namespace SaveManager
 
         private static void DisplayCommit(GitCommit c, int index, DateTimeOffset? lastDate = null)
         {
-            if (c.Parents.Count() > 1)
+            if (c.Parents.Length > 1)
             {
                 Console.WriteLine("Merge: {0}",
                     string.Join(" ", c.Parents.Select(p => p.Substring(0, 7)).ToArray()));

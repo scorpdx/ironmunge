@@ -4,9 +4,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using corgit;
-using ironmunge.Common;
+using Ironmunge.Common;
 using System.Text.Json;
-using ironmunge.Plugins;
+using Ironmunge.Plugins;
 using System.Collections.Generic;
 
 namespace ironmunge
@@ -33,7 +33,8 @@ namespace ironmunge
 
         private async ValueTask<string> InitializeHistoryDirectoryAsync(string filename)
         {
-            var path = Path.Combine(BaseDirectory, Prefix + Path.GetFileNameWithoutExtension(filename));
+            var saveName = Path.GetFileNameWithoutExtension(filename);
+            var path = Path.Combine(BaseDirectory, Prefix + saveName);
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -54,12 +55,35 @@ namespace ironmunge
 
         public async ValueTask<string> AddSaveAsync(string savePath, string filename)
         {
-            var historyDir = await InitializeHistoryDirectoryAsync(filename);
+            var outputDir = await InitializeHistoryDirectoryAsync(filename);
 
             using var zipStream = File.OpenRead(savePath);
-            await UnzipSaveAsync(zipStream, historyDir);
+            await UnzipSaveAsync(zipStream, outputDir);
 
-            return await AddGitSaveAsync(historyDir);
+            var (gameDescription, save, meta) = await ParseSaveAsync(outputDir);
+            gameDescription = await RunMungersAsync(outputDir, gameDescription, save, meta);
+
+            await AddGitSaveAsync(gameDescription, outputDir);
+
+            return gameDescription;
+        }
+
+        private async ValueTask<string> RunMungersAsync(string historyDir, string gameDescription, JsonDocument save, JsonDocument meta)
+        {
+            var mungerTasks = (from munger in Mungers
+                               let mungerProgress = new Progress<string>(s => Console.WriteLine($"[{munger.Name}] {s}"))
+                               select munger.MungeAsync(historyDir, (save, meta), mungerProgress)).ToArray();
+
+            foreach (var task in mungerTasks)
+            {
+                var extendedDescription = await task;
+                if (!string.IsNullOrWhiteSpace(extendedDescription))
+                {
+                    gameDescription += extendedDescription;
+                }
+            }
+
+            return gameDescription;
         }
 
         private async ValueTask UnzipSaveAsync(Stream zipStream, string outputDir)
@@ -74,6 +98,21 @@ namespace ironmunge
 
                 await entryStream.CopyToAsync(outputStream);
             }
+        }
+
+        private async ValueTask<(string gameDescription, JsonDocument save, JsonDocument meta)> ParseSaveAsync(string outputDir)
+        {
+            static string GetGameDescription(JsonDocument doc)
+             => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
+
+            var metaName = Path.Combine(outputDir, "meta");
+            var (metaJson, _) = await ConvertCk2JsonAsync(metaName);
+
+            var saveName = Directory.EnumerateFiles(outputDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
+            var (saveJson, _) = await ConvertCk2JsonAsync(saveName);
+
+            var gameDescription = GetGameDescription(metaJson);
+            return (gameDescription, saveJson, metaJson);
         }
 
         private async ValueTask<(JsonDocument json, string jsonPath)> ConvertCk2JsonAsync(string filepath)
@@ -111,28 +150,8 @@ namespace ironmunge
             }
         }
 
-        private async ValueTask<string> AddGitSaveAsync(string historyDir)
+        private async ValueTask AddGitSaveAsync(string gameDescription, string historyDir)
         {
-            var metaName = Path.Combine(historyDir, "meta");
-            var (metaJson, _) = await ConvertCk2JsonAsync(metaName);
-
-            var saveName = Directory.EnumerateFiles(historyDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
-            var (saveJson, _) = await ConvertCk2JsonAsync(saveName);
-
-            var gameDescription = GetGameDescription(metaJson);
-            var mungerTasks = (from munger in Mungers
-                              let mungerProgress = new Progress<string>(s => Console.WriteLine($"[{munger.Name}] {s}"))
-                              select munger.MungeAsync(historyDir, (saveJson, metaJson), mungerProgress)).ToArray();
-
-            foreach (var task in mungerTasks)
-            {
-                var extendedDescription = await task;
-                if (!string.IsNullOrWhiteSpace(extendedDescription))
-                {
-                    gameDescription += extendedDescription;
-                }
-            }
-
             var corgit = new Corgit(GitPath, historyDir);
             await corgit.AddAsync(); //stage all
 
@@ -146,11 +165,6 @@ namespace ironmunge
                     await GitPushToRemoteAsync(corgit);
                 }
             }
-
-            return gameDescription;
         }
-
-        private static string GetGameDescription(JsonDocument doc)
-            => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
     }
 }

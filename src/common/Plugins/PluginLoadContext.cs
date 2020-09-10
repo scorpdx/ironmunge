@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace ironmunge.Plugins
+namespace Ironmunge.Plugins
 {
     public class PluginLoadContext : AssemblyLoadContext
     {

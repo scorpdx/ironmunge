@@ -11,27 +11,24 @@ namespace ironmunge
         {
             var rnd = new Random();
 
-            int waitSeconds = 0;
-            TimeSpan GetWait() => TimeSpan.FromSeconds(waitSeconds) + TimeSpan.FromMilliseconds(rnd.Next(500));
-
+            int waitMs = 50;
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    using (var fsIn = File.OpenRead(sourcePath))
-                    using (var fsOut = File.Create(destinationPath))
-                    {
-                        await fsIn.CopyToAsync(fsOut);
-                        return;
-                    }
+                    using var fsIn = File.OpenRead(sourcePath);
+                    using var fsOut = File.Create(destinationPath);
+
+                    await fsIn.CopyToAsync(fsOut, token);
+                    break;
                 }
                 catch (IOException)
                 {
                     //exponential backoff: 0 -> 1 -> 2 -> 4 -> 8 ...
-                    waitSeconds = waitSeconds == 0 ? 1 : waitSeconds * 2;
+                    waitMs *= 2;
                 }
 
-                var wait = GetWait();
+                var wait = TimeSpan.FromMilliseconds(waitMs + rnd.Next(500));
                 //if wait is higher than maximumWait, wait for maximumWait
                 wait = wait > maximumWait ? maximumWait : wait;
 

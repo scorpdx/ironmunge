@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
 
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Chronicler" Version="0.3.0" />
-    <PackageReference Include="Humanizer.Core" Version="2.7.9" />
+    <PackageReference Include="Humanizer.Core" Version="2.8.26" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\common\common.csproj">
+    <ProjectReference Include="..\..\common\Ironmunge.Common.csproj">
       <Private>false</Private>
     </ProjectReference>
   </ItemGroup>

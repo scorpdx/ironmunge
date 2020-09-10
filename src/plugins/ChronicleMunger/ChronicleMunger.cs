@@ -1,5 +1,5 @@
 ﻿using Chronicler;
-using ironmunge.Plugins;
+using Ironmunge.Plugins;
 using System;
 using System.Linq;
 using System.Text;
@@ -14,7 +14,9 @@ namespace ChronicleMunger
         public string Name => nameof(ChronicleMunger);
         public string Description => "Parses and displays the Chronicle";
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async ValueTask<string> MungeAsync(string historyDir, (JsonDocument ck2json, JsonDocument metaJson) save, IProgress<string> progress = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var chronicleCollection = ChronicleCollection.Parse(save.ck2json);
             progress.Report($"Parsed {"chronicles".ToQuantity(chronicleCollection.Chronicles.Count)}, "
