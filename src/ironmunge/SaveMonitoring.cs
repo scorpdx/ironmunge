@@ -70,6 +70,15 @@ namespace ironmunge
                 if (string.IsNullOrEmpty(copyPath) || string.IsNullOrEmpty(e.Name))
                     return;
 
+                //Sanity-check to avoid crash on new game creation
+                // When CK2 first creates a new game, the initial save is a 1-byte dummy file with a single nul char.
+                // We could avoid the crash by not watching Created types at all, but this would also stop saving games when they are dropped into the save folder.
+                if (e.ChangeType == WatcherChangeTypes.Created)
+                {
+                    var copyInfo = new FileInfo(copyPath);
+                    if (copyInfo.Length <= 1) return;
+                }
+
                 await SaveAsync(copyPath, e.Name);
             }
             finally
