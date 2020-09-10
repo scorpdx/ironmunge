@@ -11,13 +11,10 @@ steps:
 # https://github.com/microsoft/azure-pipelines-tasks/issues/11569
     version: 5.x
     includePreviewVersions: true
-- script: dotnet publish -c Release -r ${{ parameters.runtime }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesInSingleFile=true -p:PublishTrimmed=True -o ${{ parameters.outputPath }}
-  workingDirectory: 'src/ironmunge'
-  displayName: 'dotnet publish: ironmunge'
-- script: dotnet publish -c Release -r ${{ parameters.runtime }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesInSingleFile=true -p:PublishTrimmed=True -o ${{ parameters.outputPath }}
-  workingDirectory: 'src/SaveManager'
-  displayName: 'dotnet publish: SaveManager'
+- script: dotnet publish -c Release -r ${{ parameters.runtime }} -p:PublishTrimmed=True -o ${{ parameters.outputPath }}
+  workingDirectory: 'src/plugins/ChronicleMunger'
+  displayName: 'dotnet publish: plugin - ChronicleMunger'
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: ${{ parameters.outputPath }}
-    ArtifactName: 'pub-${{ parameters.runtime }}'
+    ArtifactName: 'pub-${{ parameters.runtime }}-plugins'

@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +11,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\common\Ironmunge.Common.csproj">
-      <Private>false</Private>
+		<ExcludeAssets>runtime</ExcludeAssets>
+		<Private>false</Private>
     </ProjectReference>
   </ItemGroup>
 
