@@ -1,6 +1,6 @@
 ﻿using CommandLine;
-using ironmunge.Common;
-using ironmunge.Plugins;
+using Ironmunge.Common;
+using Ironmunge.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;

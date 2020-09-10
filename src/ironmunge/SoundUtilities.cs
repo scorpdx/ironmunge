@@ -1,7 +1,7 @@
 ﻿using NAudio.Wave;
 using System.Threading.Tasks;
 
-namespace ironmunge
+namespace Ironmunge
 {
     static class SoundUtilities
     {
