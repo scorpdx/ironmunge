@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ironmunge.Plugins
+namespace Ironmunge.Plugins
 {
     public interface IMunger
     {

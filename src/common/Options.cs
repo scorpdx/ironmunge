@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace ironmunge.Common
+namespace Ironmunge.Common
 {
     public class Options
     {

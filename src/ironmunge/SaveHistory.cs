@@ -4,9 +4,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using corgit;
-using ironmunge.Common;
+using Ironmunge.Common;
 using System.Text.Json;
-using ironmunge.Plugins;
+using Ironmunge.Plugins;
 using System.Collections.Generic;
 
 namespace ironmunge

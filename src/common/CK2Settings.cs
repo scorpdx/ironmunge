@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace ironmunge.Common
+namespace Ironmunge.Common
 {
     public static class CK2Settings
     {

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ironmunge.Common
+namespace Ironmunge.Common
 {
     public static class CK2Json
     {
