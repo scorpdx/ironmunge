@@ -1,19 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <RuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</RuntimeIdentifiers>
+    <RootNamespace>Ironmunge.Common</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
-    <PackageReference Include="corgit" Version="0.3.0" />
     <PackageReference Include="Humanizer.Core" Version="2.7.9" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\common\Ironmunge.Common.csproj" />
-  </ItemGroup>
 </Project>
