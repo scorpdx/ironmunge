@@ -11,7 +11,7 @@ steps:
 # https://github.com/microsoft/azure-pipelines-tasks/issues/11569
     version: 5.x
     includePreviewVersions: true
-- script: dotnet publish -c Release -r ${{ parameters.runtime }} -p:PublishTrimmed=True -o ${{ parameters.outputPath }}
+- script: dotnet publish -c Release -r ${{ parameters.runtime }} -o ${{ parameters.outputPath }}
   workingDirectory: 'src/plugins/ChronicleMunger'
   displayName: 'dotnet publish: plugin - ChronicleMunger'
 - task: PublishBuildArtifacts@1
