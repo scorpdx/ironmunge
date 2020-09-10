@@ -1,0 +1,23 @@
+parameters:
+  runtime: ''
+  outputPath: ''
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET sdk >=5.x'
+  inputs:
+    packageType: sdk
+# workaround for 'UseDotNet@2 cant find sdk version matching 3.x #11569'
+# https://github.com/microsoft/azure-pipelines-tasks/issues/11569
+    version: 5.x
+    includePreviewVersions: true
+- script: dotnet publish -c Release -r ${{ parameters.runtime }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesInSingleFile=true -p:PublishTrimmed=True -o ${{ parameters.outputPath }}
+  workingDirectory: 'src/ironmunge'
+  displayName: 'dotnet publish: ironmunge'
+- script: dotnet publish -c Release -r ${{ parameters.runtime }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesInSingleFile=true -p:PublishTrimmed=True -o ${{ parameters.outputPath }}
+  workingDirectory: 'src/SaveManager'
+  displayName: 'dotnet publish: SaveManager'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: ${{ parameters.outputPath }}
+    ArtifactName: 'pub-${{ parameters.runtime }}'
