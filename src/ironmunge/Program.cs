@@ -1,7 +1,12 @@
 ﻿using CommandLine;
+using Humanizer;
 using Ironmunge.Common;
+using Ironmunge.Plugins;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace ironmunge
 {
@@ -11,12 +16,16 @@ namespace ironmunge
         public bool Notifications { get; set; }
 
         [Option('r', "remote", HelpText = "Remote server to push updates")]
-        public string Remote { get; set; }
+        public string? Remote { get; set; }
     }
 
     class Program
     {
-        const string IronmungeMutexName = nameof(ironmunge);
+        const string IronmungeMutexName = "ironmunge";
+
+        const string PluginPathsFilename = "plugins.txt";
+
+        static string DefaultSaveDir => CK2Settings.SaveGameLocation;
 
         static void Main(string[] args)
         {
@@ -28,27 +37,21 @@ namespace ironmunge
                     {
                         Console.WriteLine("ironmunge is already running.");
                         Console.WriteLine("Please close any running instances and try again.");
-                        WriteExitMessage();
+                        Console.WriteLine("Press ENTER to exit.");
+                        Console.ReadLine();
                         return;
                     }
 
-                    var games = PluginManager.LoadPlugins();
-
-                    var selectedGame = games.SingleOrDefault(g => g.Name.Equals(o.Game, StringComparison.InvariantCultureIgnoreCase));
-                    if (selectedGame == null)
-                    {
-                        Console.WriteLine("Game \"{0}\" was not found in the list of supported games.", o.Game);
-                        WriteExitMessage();
-                        return;
-                    }
-
-                    using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation,
-                                                      selectedGame, o.SaveHistoryLocation ?? o.SaveGameLocation,
-                                                      o.Remote)
+#pragma warning disable CS8604 // Possible null reference argument.
+                    using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
+#pragma warning restore CS8604 // Possible null reference argument.
+                                                         o.SaveGameLocation ?? DefaultSaveDir,
+                                                         o.SaveHistoryLocation ?? DefaultSaveDir,
+                                                         o.Remote,
+                                                         LoadPlugins())
                     {
                         PlayNotifications = o.Notifications
                     };
-
                     Console.WriteLine("ironmunge is now running.");
                     Console.WriteLine("Press ESCAPE to exit.");
 
@@ -66,14 +69,48 @@ namespace ironmunge
                     }
 
                     Console.WriteLine("Please correct the options and try again.");
-                    WriteExitMessage();
+                    Console.WriteLine("Press ENTER to exit.");
+                    Console.ReadLine();
                 });
+        }
 
-            static void WriteExitMessage()
+        static IEnumerable<IMunger> LoadPlugins()
+        {
+            IEnumerable<string> pluginPaths;
+            try
             {
-                Console.WriteLine("Press any key to exit.");
-                Console.ReadLine();
+                pluginPaths = File.ReadLines(PluginPathsFilename);
+            } catch(FileNotFoundException)
+            { //intended
+                yield break;
+            }
+
+            var mungers = pluginPaths
+                .Select(LoadPlugin)
+                .SelectMany(CreateMungers);
+
+            foreach (var munger in mungers)
+            {
+                Console.WriteLine($"Loaded munger {munger.Name}");
+                yield return munger;
             }
         }
+
+        static Assembly LoadPlugin(string relativePath)
+        {
+            string pluginLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, relativePath));
+
+            Console.WriteLine($"Loading mungers from: {pluginLocation}");
+            PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
+            return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
+        }
+
+        //throw new ApplicationException($"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n")
+        static IEnumerable<IMunger> CreateMungers(Assembly assembly)
+            => assembly.GetTypes()
+                .Where(type => typeof(IMunger).IsAssignableFrom(type))
+                .Select(Activator.CreateInstance)
+                .Cast<IMunger>()
+                .Select(m => m ?? throw new InvalidOperationException($"Munger was null in assembly {assembly}"));
     }
 }
