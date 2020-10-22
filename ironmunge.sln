@@ -15,11 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{398B1DD8
 		build\publish-rid.yml = build\publish-rid.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ironmunge.Common", "src\common\Ironmunge.Common.csproj", "{6830F1FB-7903-4756-9378-3884B928BDA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ironmunge.Common", "src\Ironmunge.Common\Ironmunge.Common.csproj", "{6830F1FB-7903-4756-9378-3884B928BDA7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{210F8A97-F4C9-482A-8B43-154677EEDD27}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChronicleMunger", "src\plugins\ChronicleMunger\ChronicleMunger.csproj", "{69C9C480-FA53-48BB-93E0-2A81FE0651B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ironmunge.Plugins", "src\Ironmunge.Plugins\Ironmunge.Plugins.csproj", "{FE0BB02B-C752-4BA8-A53A-EA4F3EB4B14C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C9C480-FA53-48BB-93E0-2A81FE0651B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE0BB02B-C752-4BA8-A53A-EA4F3EB4B14C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE0BB02B-C752-4BA8-A53A-EA4F3EB4B14C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE0BB02B-C752-4BA8-A53A-EA4F3EB4B14C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE0BB02B-C752-4BA8-A53A-EA4F3EB4B14C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

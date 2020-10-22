@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using Humanizer;
 using Ironmunge.Common;
 using Ironmunge.Plugins;
 using System;
@@ -109,6 +110,7 @@ namespace ironmunge
             => assembly.GetTypes()
                 .Where(type => typeof(IMunger).IsAssignableFrom(type))
                 .Select(Activator.CreateInstance)
-                .Cast<IMunger>();
+                .Cast<IMunger>()
+                .Select(m => m ?? throw new InvalidOperationException($"Munger was null in assembly {assembly}"));
     }
 }
