@@ -26,7 +26,6 @@ namespace ironmunge
         private static extern UIntPtr rakaly_melt_data_length(IntPtr meltedBuffer);
 
         [DllImport(RAKALY_LIB, CallingConvention = CallingConvention.Cdecl)]
-        //size_t rakaly_melt_write_data(const MeltedBuffer *res, char *buffer, size_t length);
         private static extern unsafe UIntPtr rakaly_melt_write_data(IntPtr meltedBuffer, byte* destinationBuffer, UIntPtr length);
 
 
