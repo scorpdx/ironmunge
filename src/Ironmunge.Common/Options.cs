@@ -9,8 +9,11 @@ namespace Ironmunge.Common
         public static string? DefaultGitPath
            => Directory.EnumerateFiles("./Resources/git/cmd/", "git*", SearchOption.TopDirectoryOnly).SingleOrDefault();
 
-        public static string? DefaultJsonConverterPath
+        internal static string? CK2JsonConverterPath
             => Directory.EnumerateFiles("./Resources/", "ck2json*", SearchOption.TopDirectoryOnly).SingleOrDefault();
+
+        internal static string? CK3JsonConverterPath
+            => Directory.EnumerateFiles("./Resources/", "ck3json*", SearchOption.TopDirectoryOnly).SingleOrDefault();
 
         [Option('s', "saveGames", HelpText = "Path of the Crusader Kings II save game directory")]
         public string? SaveGameLocation { get; set; }

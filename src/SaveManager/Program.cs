@@ -124,7 +124,7 @@ namespace SaveManager
             try
             {
                 await using (var writeStream = File.Create(saveGamePath))
-                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CK2Settings.SaveGameEncoding))
+                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CKSettings.SaveGameEncoding))
                 {
 
                     saveZip.CreateEntryFromFile(savePath, saveGameName);
@@ -145,7 +145,7 @@ namespace SaveManager
             }
         }
 
-        static string DefaultSaveDir => CK2Settings.SaveGameLocation;
+        static string DefaultSaveDir => CKSettings.SaveGameLocation;
 
         static void Main(string[] args)
         {
