@@ -1,6 +1,5 @@
 ﻿using Ironmunge.Common;
 using Ironmunge.Plugins;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ironmunge
 {
-    public sealed class SaveMonitoring : IDisposable
+    public class SaveMonitoring : IDisposable
     {
         private const string FailureSound = "Resources/failure.wav";
         private const string PendingSound = "Resources/pending.wav";
@@ -22,17 +21,16 @@ namespace ironmunge
         private Task NotificationAsync(string path)
             => PlayNotifications ? SoundUtilities.PlayAsync(path) : Task.CompletedTask;
 
-        private readonly ILogger<SaveMonitoring> _logger;
         private readonly SaveHistory _history;
         private readonly FileSystemWatcher _watcher;
 
-        private readonly ConcurrentDictionary<string, bool> _pendingSaves = new();
+        private readonly ConcurrentDictionary<string, bool> _pendingSaves = new ConcurrentDictionary<string, bool>();
 
         public bool PlayNotifications { get; set; } = true;
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public SaveMonitoring(ILogger<SaveMonitoring> logger, string gitPath, string savePath, IGame game, string historyPath, string? remote = null)
+        public SaveMonitoring(string gitPath, string savePath, string historyPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -43,15 +41,12 @@ namespace ironmunge
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
-            _logger = logger;
+            _history = new SaveHistory(historyPath, gitPath, remote, plugins);
 
-            _history = new SaveHistory(game, historyPath, gitPath, remote);
-
-            _watcher = new FileSystemWatcher(savePath);
-            foreach (var filter in game.Filters)
+            _watcher = new FileSystemWatcher(savePath)
             {
-                _watcher.Filters.Add(filter);
-            }
+                Filter = "*.ck?"
+            };
 
             _watcher.Changed += CopyAndSave;
             _watcher.Created += CopyAndSave;
@@ -127,27 +122,36 @@ namespace ironmunge
             try
             {
                 var gameDescription = await _history.AddSaveAsync(path, name);
-                _logger.LogInformation("[{timestamp}] Saved {name} to history: {gameDescription}", DateTime.Now.ToShortTimeString(), name, gameDescription);
+                Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}] Saved {name} to history: {gameDescription}");
 
                 await NotificationAsync(SuccessSound);
             }
             catch (Exception e)
             {
                 await NotificationAsync(FailureSound);
-                _logger.LogError(e, "Failed saving to history");
+                Console.Error.WriteLine(e);
             }
         }
 
         #region IDisposable Support
         private bool disposedValue;
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
-                _watcher?.Dispose();
+                if (disposing)
+                {
+                    _watcher.Dispose();
+                }
+
                 disposedValue = true;
             }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }
