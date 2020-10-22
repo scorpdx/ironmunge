@@ -9,6 +9,7 @@ using System.Text.Json;
 using Ironmunge.Plugins;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace ironmunge
 {
@@ -75,18 +76,35 @@ namespace ironmunge
                     break;
                 case '3':
                     {
-                        var saveBytes = File.ReadAllBytes(savePath);
-                        var saveText = Ck3Bin.Melt(saveBytes);
+                        const string TEMP_SAVE_FILENAME = "ck3save.tmp";
 
-                        var saveTextPath = Path.Combine(outputDir, "ck3txt");
-                        await File.WriteAllTextAsync(saveTextPath, saveText, Encoding.UTF8);
+                        var tempSavePath = Path.Combine(outputDir, TEMP_SAVE_FILENAME);
+                        Debug.Assert(!File.Exists(tempSavePath));
+                        File.Move(savePath, tempSavePath, true);
 
-                        var saveJsonPath = Path.Combine(outputDir, "ck3txt.json");
-                        var (gameDescription, save) = await ParseCK3SaveAsync(outputDir);
+                        var (json, jsonPath) = await ConvertCK3JsonAsync(tempSavePath);
+                        string date;
+                        string playerName;
+                        string saveGame;
+                        {
+                            var metadata = json.RootElement.GetProperty("meta_data");
+                            {
+                                playerName = metadata.GetProperty("meta_player_name").GetString();
+                            }
+                            var ironmanManager = json.RootElement.GetProperty("ironman_manager");
+                            {
+                                saveGame = ironmanManager.GetProperty("save_game").GetString();
+                                date = ironmanManager.GetProperty("date").GetString();
+                            }
+                        }
 
-                        File.Move(savePath, Path.Combine(outputDir, filename), true);
-                        await AddGitSaveAsync(filename, outputDir);
-                        return filename;
+                        File.Move(jsonPath, Path.Combine(outputDir, Path.ChangeExtension(saveGame, ".json")), true);
+                        File.Move(tempSavePath, Path.Combine(outputDir, Path.ChangeExtension(saveGame, ".ck3")), true);
+
+                        var gameDescription = $"[{date}] {playerName}";
+                        await AddGitSaveAsync(gameDescription, outputDir);
+
+                        return gameDescription;
                     }
                     break;
                 default:
@@ -157,24 +175,13 @@ namespace ironmunge
             return (json, jsonPath);
         }
 
-        private async ValueTask<(string gameDescription, JsonDocument save)> ParseCK3SaveAsync(string outputDir)
-        {
-            const string saveName = "ck3txt";
-            var (saveJson, _) = await ConvertCK3JsonAsync(Path.GetFullPath(saveName));
-
-            return ("", saveJson);
-        }
-
         private async ValueTask<(JsonDocument json, string jsonPath)> ConvertCK3JsonAsync(string filepath)
         {
             var jsonPath = Path.ChangeExtension(filepath, ".json");
-            await using var jsonStream = File.Create(jsonPath);
 
-            await using var writer = new Utf8JsonWriter(jsonStream,
-                new JsonWriterOptions
-                {
-                    Indented = true
-                });
+            await using var jsonStream = File.Create(jsonPath);
+            await using var writer = new Utf8JsonWriter(jsonStream, new JsonWriterOptions { Indented = true });
+
             var json = await CKJson.ParseCK3FileAsync(filepath);
             json.WriteTo(writer);
 
