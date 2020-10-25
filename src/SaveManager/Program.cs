@@ -56,7 +56,7 @@ namespace SaveManager
             string? selection;
             int selectedIndex;
             {
-                var commits = (await git.LogAsync(new GitArguments.LogOptions(maxEntries: null, reverse: true), "*.ck2", "meta")).ToList();
+                var commits = (await git.LogAsync(new GitArguments.LogOptions(maxEntries: null, reverse: true), "*.ck2", "*.ck3", "meta")).ToList();
                 for (int i = 0; i < commits.Count; i++)
                 {
                     DisplayCommit(commits[i], i + 1);
@@ -107,9 +107,21 @@ namespace SaveManager
                 _ = await git.CheckoutNewBranchAsync($"restore{currentTime}", startPoint: commit.Hash);
             }
 
-            var savePath = Directory.EnumerateFiles(historyPath, "*.ck2", SearchOption.TopDirectoryOnly).Single();
-            var metaPath = Directory.EnumerateFiles(historyPath, "meta", SearchOption.TopDirectoryOnly).Single();
+            var savePath = Directory.EnumerateFiles(historyPath, "*.ck?", SearchOption.TopDirectoryOnly).Single();
+            switch (savePath[^1])
+            {
+                case '2':
+                    var metaPath = Directory.EnumerateFiles(historyPath, "meta", SearchOption.TopDirectoryOnly).Single();
+                    await RestoreCK2SaveAsync(savePath, saveGameLocation, metaPath: metaPath);
+                    break;
+                case '3':
+                    RestoreCK3Save(savePath, saveGameLocation);
+                    break;
+            }
+        }
 
+        static async Task RestoreCK2SaveAsync(string savePath, string saveGameLocation, string metaPath)
+        {
             var saveGameName = Path.GetFileName(savePath);
             var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
 
@@ -123,13 +135,43 @@ namespace SaveManager
 
             try
             {
-                await using (var writeStream = File.Create(saveGamePath))
-                using (var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CKSettings.SaveGameEncoding))
-                {
+                await using var writeStream = File.Create(saveGamePath);
+                using var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CKSettings.SaveGameEncoding);
 
-                    saveZip.CreateEntryFromFile(savePath, saveGameName);
-                    saveZip.CreateEntryFromFile(metaPath, "meta");
+                saveZip.CreateEntryFromFile(savePath, saveGameName);
+                saveZip.CreateEntryFromFile(metaPath, "meta");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.ToString());
+                if (!string.IsNullOrEmpty(backupPath))
+                {
+                    File.Copy(backupPath, saveGamePath, true);
+                    Console.Error.WriteLine($"SaveManager restored backup {Path.GetFileNameWithoutExtension(backupPath)}");
                 }
+                Console.Error.WriteLine("You are NOT on a new timeline.");
+                return;
+            }
+
+            Console.WriteLine("Save restored! You are now on a new timeline.");
+        }
+
+        static void RestoreCK3Save(string savePath, string saveGameLocation)
+        {
+            var saveGameName = Path.GetFileName(savePath);
+            var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
+
+            //make a backup if sg already exists
+            string? backupPath = null;
+            if (File.Exists(saveGamePath))
+            {
+                backupPath = Path.ChangeExtension(saveGamePath, ".ck3.backup");
+                File.Copy(saveGamePath, backupPath, true);
+            }
+
+            try
+            {
+                File.Copy(savePath, saveGamePath, true);
 
                 Console.WriteLine("Save restored! You are now on a new timeline.");
             }
@@ -145,15 +187,13 @@ namespace SaveManager
             }
         }
 
-        static string DefaultSaveDir => CKSettings.SaveGameLocation;
-
         static void Main(string[] args)
         {
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
 #pragma warning disable CS8604 // Possible null reference argument.
-                    var task = InteractiveRestoreAsync(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation ?? DefaultSaveDir, o.SaveHistoryLocation ?? DefaultSaveDir);
+                    var task = InteractiveRestoreAsync(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation, o.SaveHistoryLocation ?? o.SaveGameLocation);
 #pragma warning restore CS8604 // Possible null reference argument.
                     task.Wait();
                 })
