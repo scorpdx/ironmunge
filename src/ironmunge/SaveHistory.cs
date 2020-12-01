@@ -79,7 +79,6 @@ namespace ironmunge
                         const string TEMP_SAVE_FILENAME = "ck3save.tmp";
 
                         var tempSavePath = Path.Combine(outputDir, TEMP_SAVE_FILENAME);
-                        Debug.Assert(!File.Exists(tempSavePath));
                         File.Move(savePath, tempSavePath, true);
 
                         var (json, jsonPath) = await ConvertCK3JsonAsync(tempSavePath);
@@ -98,7 +97,8 @@ namespace ironmunge
                             }
                         }
 
-                        File.Move(jsonPath, Path.Combine(outputDir, Path.ChangeExtension(saveGame, ".json")), true);
+                        //File.Move(jsonPath, Path.Combine(outputDir, Path.ChangeExtension(saveGame, ".json")), true);
+                        File.Delete(jsonPath);
                         File.Move(tempSavePath, Path.Combine(outputDir, Path.ChangeExtension(saveGame, ".ck3")), true);
 
                         var gameDescription = $"[{date}] {playerName}";
@@ -180,7 +180,7 @@ namespace ironmunge
             var jsonPath = Path.ChangeExtension(filepath, ".json");
 
             await using var jsonStream = File.Create(jsonPath);
-            await using var writer = new Utf8JsonWriter(jsonStream, new JsonWriterOptions { Indented = true });
+            await using var writer = new Utf8JsonWriter(jsonStream, new JsonWriterOptions { Indented = false });
 
             var json = await CKJson.ParseCK3FileAsync(filepath);
             json.WriteTo(writer);
