@@ -2,7 +2,7 @@
   "profiles": {
     "SaveManager": {
       "commandName": "Project",
-      "commandLineArgs": "-g git -s \"C:\\Users\\Zebedee\\Documents\\Paradox Interactive\\Crusader Kings III\\save games\" -h \"Q:\\Saves\\CK3\\save games\""
+      "commandLineArgs": "-g git -s \"C:\\Users\\Zebedee\\Documents\\Paradox Interactive\\Crusader Kings III\\save games\" -h \"H:\\OneDrive\\Saves\\CK3\""
     }
   }
 }
