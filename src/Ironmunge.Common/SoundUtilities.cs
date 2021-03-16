@@ -9,7 +9,7 @@ namespace Ironmunge.Common
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            using var audioFile = new AudioFileReader(path);
+            using var audioFile = new WaveFileReader(path);
             using var outputDevice = new WaveOutEvent();
 
             outputDevice.Init(audioFile);
