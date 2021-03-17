@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Ironmunge.Common</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -14,6 +14,10 @@
     <PackageReference Include="System.Text.Json" Version="5.0.1" />
     <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ironmunge.Plugins\Ironmunge.Plugins.csproj" />
   </ItemGroup>
 
 </Project>
