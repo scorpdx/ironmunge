@@ -1,11 +1,11 @@
 ﻿using Chronicler;
+using Humanizer;
 using Ironmunge.Plugins;
 using System;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Humanizer;
 
 namespace ChronicleMunger
 {
@@ -14,9 +14,7 @@ namespace ChronicleMunger
         public string Name => nameof(ChronicleMunger);
         public string Description => "Parses and displays the Chronicle";
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async ValueTask<string?> MungeAsync(string historyDir, (JsonDocument ck2json, JsonDocument metaJson) save, IProgress<string>? progress = null)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        public ValueTask<string?> MungeAsync(string historyDir, (JsonDocument ck2json, JsonDocument metaJson) save, IProgress<string>? progress = null)
         {
             var chronicleCollection = ChronicleCollection.Parse(save.ck2json);
             progress?.Report($"Parsed {"chronicles".ToQuantity(chronicleCollection.Chronicles.Count)}, "
@@ -27,20 +25,21 @@ namespace ChronicleMunger
                                      from chapter in chronicle.Chapters
                                      where chapter.Entries.Any()
                                      select chapter).LastOrDefault();
-            progress?.Report($"Most recent chapter covers year {mostRecentChapter.Year}");
 
             // on very first save, we will have a chroniclecollection but no entries
-            if (mostRecentChapter != null)
+            if (mostRecentChapter == null)
             {
-                var sb = new StringBuilder();
-                foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
-                {
-                    sb.AppendLine().AppendLine().Append(entry);
-                }
-                return sb.ToString();
+                return ValueTask.FromResult<string?>(null);
             }
 
-            return null;
+            progress?.Report($"Most recent chapter covers year {mostRecentChapter.Year}");
+
+            var sb = new StringBuilder();
+            foreach (var entry in mostRecentChapter.Entries.Select(entry => entry.Text).Reverse())
+            {
+                sb.AppendLine().AppendLine().Append(entry);
+            }
+            return ValueTask.FromResult<string?>(sb.ToString());
         }
     }
 }
