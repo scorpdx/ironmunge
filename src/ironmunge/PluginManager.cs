@@ -7,11 +7,11 @@ using System.Reflection;
 
 namespace ironmunge
 {
-    internal static class PluginManager
+    class PluginManager
     {
         const string PluginPathsFilename = "plugins.txt";
 
-        public static IEnumerable<IGame> LoadPlugins()
+        static IEnumerable<IMunger> LoadPlugins()
         {
             IEnumerable<string> pluginPaths;
             try
@@ -23,32 +23,33 @@ namespace ironmunge
                 yield break;
             }
 
-            var games = pluginPaths
+            var mungers = pluginPaths
                 .Select(LoadPlugin)
-                .SelectMany(CreatePlugins<IGame>);
+                .SelectMany(CreateMungers);
 
-            foreach (var game in games)
+            foreach (var munger in mungers)
             {
-                Console.WriteLine($"Loaded game {game.Name}");
-                yield return game;
+                Console.WriteLine($"Loaded munger {munger.Name}");
+                yield return munger;
             }
         }
 
-        private static Assembly LoadPlugin(string relativePath)
+        static Assembly LoadPlugin(string relativePath)
         {
             string pluginLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, relativePath));
 
-            Console.WriteLine($"Loading plugins from {pluginLocation}");
-            PluginLoadContext loadContext = new(pluginLocation);
+            Console.WriteLine($"Loading mungers from: {pluginLocation}");
+            PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
             return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
         }
 
-        private static IEnumerable<T> CreatePlugins<T>(Assembly assembly)
+        //throw new ApplicationException($"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n")
+        static IEnumerable<IMunger> CreateMungers(Assembly assembly)
             => assembly.GetTypes()
-                .Where(type => typeof(T).IsAssignableFrom(type))
+                .Where(type => typeof(IMunger).IsAssignableFrom(type))
                 .Select(Activator.CreateInstance)
-                .Cast<T>();
-                //.Select(p => p ?? throw new InvalidOperationException($"Plugin was null in assembly {assembly}"));
+                .Cast<IMunger>()
+                .Select(m => m ?? throw new InvalidOperationException($"Munger was null in assembly {assembly}"));
 
     }
 }
