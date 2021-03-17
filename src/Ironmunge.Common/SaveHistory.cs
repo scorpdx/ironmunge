@@ -3,17 +3,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using corgit;
-using Ironmunge.Common;
 using System.Text.Json;
 using Ironmunge.Plugins;
 using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
 
-namespace ironmunge
+namespace Ironmunge.Common
 {
-    class SaveHistory
+    public sealed class SaveHistory
     {
         public static string Prefix { get; } = "ironmunge_";
 
@@ -27,10 +23,10 @@ namespace ironmunge
 
         public SaveHistory(string baseDirectory, string gitPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
         {
-            this.BaseDirectory = baseDirectory;
-            this.GitPath = gitPath;
-            this.Remote = remote;
-            this.Mungers = new System.Collections.Concurrent.ConcurrentBag<IMunger>(plugins ?? Enumerable.Empty<IMunger>());
+            BaseDirectory = baseDirectory;
+            GitPath = gitPath;
+            Remote = remote;
+            Mungers = new System.Collections.Concurrent.ConcurrentBag<IMunger>(plugins ?? Enumerable.Empty<IMunger>());
         }
 
         private async ValueTask<string> InitializeHistoryDirectoryAsync(string filename)
@@ -130,7 +126,7 @@ namespace ironmunge
             return gameDescription;
         }
 
-        private async ValueTask UnzipSaveAsync(Stream zipStream, string outputDir)
+        private static async ValueTask UnzipSaveAsync(Stream zipStream, string outputDir)
         {
             using var zip = new ZipArchive(zipStream, ZipArchiveMode.Read, true, CKSettings.SaveGameEncoding);
             foreach (var entry in zip.Entries)
@@ -144,49 +140,49 @@ namespace ironmunge
             }
         }
 
-        private async ValueTask<(string gameDescription, JsonDocument save, JsonDocument meta)> ParseCK2SaveAsync(string outputDir)
-        {
-            static string GetGameDescription(JsonDocument doc)
-             => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
+        //private async ValueTask<(string gameDescription, JsonDocument save, JsonDocument meta)> ParseCK2SaveAsync(string outputDir)
+        //{
+        //    static string GetGameDescription(JsonDocument doc)
+        //     => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
 
-            var metaName = Path.Combine(outputDir, "meta");
-            var (metaJson, _) = await ConvertCK2JsonAsync(metaName);
+        //    var metaName = Path.Combine(outputDir, "meta");
+        //    var (metaJson, _) = await ConvertCK2JsonAsync(metaName);
 
-            var saveName = Directory.EnumerateFiles(outputDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
-            var (saveJson, _) = await ConvertCK2JsonAsync(saveName);
+        //    var saveName = Directory.EnumerateFiles(outputDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
+        //    var (saveJson, _) = await ConvertCK2JsonAsync(saveName);
 
-            var gameDescription = GetGameDescription(metaJson);
-            return (gameDescription, saveJson, metaJson);
-        }
+        //    var gameDescription = GetGameDescription(metaJson);
+        //    return (gameDescription, saveJson, metaJson);
+        //}
 
-        private async ValueTask<(JsonDocument json, string jsonPath)> ConvertCK2JsonAsync(string filepath)
-        {
-            var jsonPath = Path.ChangeExtension(filepath, ".json");
-            await using var jsonStream = File.Create(jsonPath);
+        //private static async ValueTask<(JsonDocument json, string jsonPath)> ConvertCK2JsonAsync(string filepath)
+        //{
+        //    var jsonPath = Path.ChangeExtension(filepath, ".json");
+        //    await using var jsonStream = File.Create(jsonPath);
 
-            await using var writer = new Utf8JsonWriter(jsonStream,
-                new JsonWriterOptions
-                {
-                    Indented = true
-                });
-            var json = await CKJson.ParseCK2FileAsync(filepath);
-            json.WriteTo(writer);
+        //    await using var writer = new Utf8JsonWriter(jsonStream,
+        //        new JsonWriterOptions
+        //        {
+        //            Indented = true
+        //        });
+        //    var json = await CKJson.ParseCK2FileAsync(filepath);
+        //    json.WriteTo(writer);
 
-            return (json, jsonPath);
-        }
+        //    return (json, jsonPath);
+        //}
 
-        private async ValueTask<(JsonDocument json, string jsonPath)> ConvertCK3JsonAsync(string filepath)
-        {
-            var jsonPath = Path.ChangeExtension(filepath, ".json");
+        //private static async ValueTask<(JsonDocument json, string jsonPath)> ConvertCK3JsonAsync(string filepath)
+        //{
+        //    var jsonPath = Path.ChangeExtension(filepath, ".json");
 
-            await using var jsonStream = File.Create(jsonPath);
-            await using var writer = new Utf8JsonWriter(jsonStream, new JsonWriterOptions { Indented = false });
+        //    await using var jsonStream = File.Create(jsonPath);
+        //    await using var writer = new Utf8JsonWriter(jsonStream, new JsonWriterOptions { Indented = false });
 
-            var json = await CKJson.ParseCK3FileAsync(filepath);
-            json.WriteTo(writer);
+        //    var json = await CKJson.ParseCK3FileAsync(filepath);
+        //    json.WriteTo(writer);
 
-            return (json, jsonPath);
-        }
+        //    return (json, jsonPath);
+        //}
 
         private async ValueTask GitPushToRemoteAsync(Corgit corgit)
         {

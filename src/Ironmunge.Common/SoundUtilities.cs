@@ -13,7 +13,7 @@ namespace Ironmunge.Common
             using var outputDevice = new WaveOutEvent();
 
             outputDevice.Init(audioFile);
-            outputDevice.PlaybackStopped += (sender, e) =>
+            outputDevice.PlaybackStopped += (_, e) =>
             {
                 if (e.Exception != null)
                 {

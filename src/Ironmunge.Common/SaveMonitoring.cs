@@ -1,5 +1,4 @@
-﻿using Ironmunge.Common;
-using Ironmunge.Plugins;
+﻿using Ironmunge.Plugins;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,9 +6,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ironmunge
+namespace Ironmunge.Common
 {
-    public class SaveMonitoring : IDisposable
+    public sealed class SaveMonitoring : IDisposable
     {
         private const string FailureSound = "Resources/failure.wav";
         private const string PendingSound = "Resources/pending.wav";
@@ -136,21 +135,14 @@ namespace ironmunge
         #region IDisposable Support
         private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposedValue)
             {
-                if (disposing)
-                {
-                    _watcher.Dispose();
-                }
-
+                _watcher?.Dispose();
                 disposedValue = true;
             }
-        }
-        public void Dispose()
-        {
-            Dispose(true);
+
             GC.SuppressFinalize(this);
         }
         #endregion
