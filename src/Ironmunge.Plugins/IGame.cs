@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ironmunge.Plugins
@@ -8,6 +11,8 @@ namespace Ironmunge.Plugins
     {
         string Name { get; }
 
-        ValueTask Monitor(string savePath, Func<string> onChange);
+        IEnumerable<string> Filters { get; }
+
+        ValueTask<(JsonDocument saveDocument, string commitMessage)> AddSaveAsync(string savePath, ILogger logger, CancellationToken cancellationToken = default);
     }
 }
