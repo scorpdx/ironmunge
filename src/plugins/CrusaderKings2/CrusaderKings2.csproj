@@ -3,5 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ironmunge.Plugins\Ironmunge.Plugins.csproj">
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
 
 </Project>

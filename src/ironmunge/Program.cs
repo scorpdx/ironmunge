@@ -1,12 +1,6 @@
 ﻿using CommandLine;
-using Humanizer;
 using Ironmunge.Common;
-using Ironmunge.Plugins;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace ironmunge
 {
@@ -16,7 +10,7 @@ namespace ironmunge
         public bool Notifications { get; set; }
 
         [Option('r', "remote", HelpText = "Remote server to push updates")]
-        public string? Remote { get; set; }
+        public string Remote { get; set; }
     }
 
     class Program
@@ -38,13 +32,13 @@ namespace ironmunge
                         return;
                     }
 
-#pragma warning disable CS8604 // Possible null reference argument.
+                    var game = PluginManager.load
+
                     using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
-#pragma warning restore CS8604 // Possible null reference argument.
                                                          o.SaveGameLocation,
                                                          o.SaveHistoryLocation ?? o.SaveGameLocation,
                                                          o.Remote,
-                                                         LoadPlugins())
+                                                         PluginManager.LoadPlugins())
                     {
                         PlayNotifications = o.Notifications
                     };

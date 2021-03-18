@@ -7,11 +7,11 @@ using System.Reflection;
 
 namespace ironmunge
 {
-    class PluginManager
+    internal static class PluginManager
     {
         const string PluginPathsFilename = "plugins.txt";
 
-        static IEnumerable<IMunger> LoadPlugins()
+        public static IEnumerable<IMunger> LoadPlugins()
         {
             IEnumerable<string> pluginPaths;
             try
@@ -34,17 +34,16 @@ namespace ironmunge
             }
         }
 
-        static Assembly LoadPlugin(string relativePath)
+        private static Assembly LoadPlugin(string relativePath)
         {
             string pluginLocation = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, relativePath));
 
-            Console.WriteLine($"Loading mungers from: {pluginLocation}");
-            PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
+            Console.WriteLine($"Loading plugins from {pluginLocation}");
+            PluginLoadContext loadContext = new(pluginLocation);
             return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
         }
 
-        //throw new ApplicationException($"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n")
-        static IEnumerable<IMunger> CreateMungers(Assembly assembly)
+        private static IEnumerable<IMunger> CreateMungers(Assembly assembly)
             => assembly.GetTypes()
                 .Where(type => typeof(IMunger).IsAssignableFrom(type))
                 .Select(Activator.CreateInstance)
