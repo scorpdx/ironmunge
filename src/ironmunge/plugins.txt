@@ -1,1 +1,1 @@
-﻿Plugins/ChronicleMunger.dll
+﻿Games/CrusaderKings3.dll
