@@ -30,7 +30,7 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public SaveMonitoring(string gitPath, string savePath, IEnumerable<string> filters, string historyPath, string? remote = null)
+        public SaveMonitoring(string gitPath, string savePath, IGame game, string historyPath, string? remote = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -41,10 +41,10 @@ namespace ironmunge
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
-            _history = new SaveHistory(historyPath, gitPath, remote);
+            _history = new SaveHistory(game, historyPath, gitPath, remote);
 
             _watcher = new FileSystemWatcher(savePath);
-            foreach (var filter in filters)
+            foreach (var filter in game.Filters)
             {
                 _watcher.Filters.Add(filter);
             }

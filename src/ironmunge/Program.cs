@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Ironmunge.Common;
 using System;
+using System.Linq;
 
 namespace ironmunge
 {
@@ -27,21 +28,27 @@ namespace ironmunge
                     {
                         Console.WriteLine("ironmunge is already running.");
                         Console.WriteLine("Please close any running instances and try again.");
-                        Console.WriteLine("Press ENTER to exit.");
-                        Console.ReadLine();
+                        WriteExitMessage();
                         return;
                     }
 
-                    var game = PluginManager.load
+                    var games = PluginManager.LoadPlugins();
 
-                    using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
-                                                         o.SaveGameLocation,
-                                                         o.SaveHistoryLocation ?? o.SaveGameLocation,
-                                                         o.Remote,
-                                                         PluginManager.LoadPlugins())
+                    var selectedGame = games.SingleOrDefault(g => g.Name.Equals(o.Game, StringComparison.InvariantCultureIgnoreCase));
+                    if (selectedGame == null)
+                    {
+                        Console.WriteLine("Game \"{0}\" was not found in the list of supported games.", o.Game);
+                        WriteExitMessage();
+                        return;
+                    }
+
+                    using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation,
+                                                      selectedGame, o.SaveHistoryLocation ?? o.SaveGameLocation,
+                                                      o.Remote)
                     {
                         PlayNotifications = o.Notifications
                     };
+
                     Console.WriteLine("ironmunge is now running.");
                     Console.WriteLine("Press ESCAPE to exit.");
 
@@ -59,9 +66,14 @@ namespace ironmunge
                     }
 
                     Console.WriteLine("Please correct the options and try again.");
-                    Console.WriteLine("Press ENTER to exit.");
-                    Console.ReadLine();
+                    WriteExitMessage();
                 });
+
+            static void WriteExitMessage()
+            {
+                Console.WriteLine("Press any key to exit.");
+                Console.ReadLine();
+            }
         }
     }
 }
