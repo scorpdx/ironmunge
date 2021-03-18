@@ -21,8 +21,7 @@ namespace CrusaderKings3
 
             var metadata = json.RootElement.GetProperty("meta_data");
             string playerName = metadata.GetProperty("meta_player_name").GetString();
-            var gamestate = json.RootElement.GetProperty("gamestate");
-            var ironmanManager = gamestate.GetProperty("ironman_manager");
+            var ironmanManager = json.RootElement.GetProperty("ironman_manager");
             //string saveGame = ironmanManager.GetProperty("save_game").GetString();
             string date = ironmanManager.GetProperty("date").GetString();
 
