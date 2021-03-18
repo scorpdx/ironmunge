@@ -3,7 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <PackageReference Include="LibCK3" Version="1.3.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Ironmunge.Plugins\Ironmunge.Plugins.csproj">
       <ExcludeAssets>runtime</ExcludeAssets>

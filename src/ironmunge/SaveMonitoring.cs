@@ -1,4 +1,5 @@
-﻿using Ironmunge.Plugins;
+﻿using Ironmunge.Common;
+using Ironmunge.Plugins;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ironmunge.Common
+namespace ironmunge
 {
     public sealed class SaveMonitoring : IDisposable
     {
@@ -23,13 +24,13 @@ namespace Ironmunge.Common
         private readonly SaveHistory _history;
         private readonly FileSystemWatcher _watcher;
 
-        private readonly ConcurrentDictionary<string, bool> _pendingSaves = new ConcurrentDictionary<string, bool>();
+        private readonly ConcurrentDictionary<string, bool> _pendingSaves = new();
 
         public bool PlayNotifications { get; set; } = true;
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public SaveMonitoring(string gitPath, string savePath, string historyPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
+        public SaveMonitoring(string gitPath, string savePath, IEnumerable<string> filters, string historyPath, string? remote = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -40,12 +41,13 @@ namespace Ironmunge.Common
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
-            _history = new SaveHistory(historyPath, gitPath, remote, plugins);
+            _history = new SaveHistory(historyPath, gitPath, remote);
 
-            _watcher = new FileSystemWatcher(savePath)
+            _watcher = new FileSystemWatcher(savePath);
+            foreach (var filter in filters)
             {
-                Filter = "*.ck?"
-            };
+                _watcher.Filters.Add(filter);
+            }
 
             _watcher.Changed += CopyAndSave;
             _watcher.Created += CopyAndSave;
@@ -142,8 +144,6 @@ namespace Ironmunge.Common
                 _watcher?.Dispose();
                 disposedValue = true;
             }
-
-            GC.SuppressFinalize(this);
         }
         #endregion
     }
