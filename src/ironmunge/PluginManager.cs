@@ -11,7 +11,7 @@ namespace ironmunge
     {
         const string PluginPathsFilename = "plugins.txt";
 
-        public static IEnumerable<IMunger> LoadPlugins()
+        public static IEnumerable<IGame> LoadPlugins()
         {
             IEnumerable<string> pluginPaths;
             try
@@ -23,14 +23,14 @@ namespace ironmunge
                 yield break;
             }
 
-            var mungers = pluginPaths
+            var games = pluginPaths
                 .Select(LoadPlugin)
-                .SelectMany(CreateMungers);
+                .SelectMany(CreatePlugins<IGame>);
 
-            foreach (var munger in mungers)
+            foreach (var game in games)
             {
-                Console.WriteLine($"Loaded munger {munger.Name}");
-                yield return munger;
+                Console.WriteLine($"Loaded game {game.Name}");
+                yield return game;
             }
         }
 
@@ -43,12 +43,12 @@ namespace ironmunge
             return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
         }
 
-        private static IEnumerable<IMunger> CreateMungers(Assembly assembly)
+        private static IEnumerable<T> CreatePlugins<T>(Assembly assembly)
             => assembly.GetTypes()
-                .Where(type => typeof(IMunger).IsAssignableFrom(type))
+                .Where(type => typeof(T).IsAssignableFrom(type))
                 .Select(Activator.CreateInstance)
-                .Cast<IMunger>()
-                .Select(m => m ?? throw new InvalidOperationException($"Munger was null in assembly {assembly}"));
+                .Cast<T>();
+                //.Select(p => p ?? throw new InvalidOperationException($"Plugin was null in assembly {assembly}"));
 
     }
 }

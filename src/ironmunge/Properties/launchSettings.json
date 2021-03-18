@@ -2,7 +2,7 @@
   "profiles": {
     "ironmunge": {
       "commandName": "Project",
-      "commandLineArgs": "-g git -s \"C:\\Users\\Zebedee\\Documents\\Paradox Interactive\\Crusader Kings III\\save games\" -h \"H:\\OneDrive\\Saves\\CK3\""
+      "commandLineArgs": "-g \"Crusader Kings 3\" --git git -s \"C:\\Users\\Zebedee\\Documents\\Paradox Interactive\\Crusader Kings III\\save games\" -h \"H:\\OneDrive\\Saves\\CK3\""
     }
   }
 }
