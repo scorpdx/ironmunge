@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -61,10 +62,24 @@ namespace ironmunge
             return path;
         }
 
-        public async ValueTask<string> AddSaveAsync(string savePath, string filename, CancellationToken cancellationToken = default)
+        public async Task<string> AddSaveAsync(string savePath, string filename, CancellationToken cancellationToken = default)
         {
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
             var (json, commitMessage) = await Game.AddSaveAsync(savePath, null, cancellationToken);
+
+            var historySavePath = Path.Join(historyDir, filename);
+            File.Move(savePath, historySavePath, true);
+
+            using (json)
+            {
+                var jsonPath = Path.Join(historyDir, Path.ChangeExtension(filename, ".json"));
+                await using var jsonStream = File.Create(jsonPath);
+                await using var jsonWriter = new Utf8JsonWriter(jsonStream);
+                json.WriteTo(jsonWriter);
+
+                //TODO: run mungers
+            }
+
             await AddGitSaveAsync(commitMessage, historyDir);
             return commitMessage;
         }
