@@ -1,62 +1,47 @@
 ﻿using CommandLine;
-using Ironmunge.Common;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
-using System.Linq;
 
 namespace ironmunge
 {
-    class IronmungeOptions : Options
-    {
-        [Option('n', "notifications", HelpText = "Play notification sounds while saving history", Default = true)]
-        public bool Notifications { get; set; }
-
-        [Option('r', "remote", HelpText = "Remote server to push updates")]
-        public string Remote { get; set; }
-    }
-
     class Program
     {
-        const string IronmungeMutexName = nameof(ironmunge);
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-        static void Main(string[] args)
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostContext, builder) =>
+                {
+
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    var options = EnsureCommandLine(args);
+                    services.AddSingleton<IOptions<IronmungeOptions>>(new OptionsWrapper<IronmungeOptions>(options));
+
+                    services.AddSingleton<PluginProvider>();
+                    {
+                        using var sp = services.BuildServiceProvider();
+                        var provider = sp.GetRequiredService<PluginProvider>();
+                        var pluginServices = provider.AddPlugins();
+                        services.Add(pluginServices);
+                    }
+
+                    services.AddHostedService<IronmungeWorker>();
+                });
+
+        static IronmungeOptions EnsureCommandLine(string[] args)
         {
             var options = CommandLine.Parser.Default.ParseArguments<IronmungeOptions>(args)
                 .WithParsed(o =>
                 {
-                    using var mutex = new System.Threading.Mutex(true, IronmungeMutexName, out bool createdMutex);
-                    if (!createdMutex)
-                    {
-                        Console.WriteLine("ironmunge is already running.");
-                        Console.WriteLine("Please close any running instances and try again.");
-                        WriteExitMessage();
-                        return;
-                    }
-
-                    var games = PluginManager.LoadPlugins();
-
-                    var selectedGame = games.SingleOrDefault(g => g.Name.Equals(o.Game, StringComparison.InvariantCultureIgnoreCase));
-                    if (selectedGame == null)
-                    {
-                        Console.WriteLine("Game \"{0}\" was not found in the list of supported games.", o.Game);
-                        WriteExitMessage();
-                        return;
-                    }
-
-                    using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation,
-                                                      selectedGame, o.SaveHistoryLocation ?? o.SaveGameLocation,
-                                                      o.Remote)
-                    {
-                        PlayNotifications = o.Notifications
-                    };
-
-                    Console.WriteLine("ironmunge is now running.");
-                    Console.WriteLine("Press ESCAPE to exit.");
-
-                    ConsoleKeyInfo key;
-                    while ((key = Console.ReadKey()).Key != ConsoleKey.Escape)
-                    {
-                        //wait for key to exit
-                    }
                 })
                 .WithNotParsed(o =>
                 {
@@ -73,7 +58,10 @@ namespace ironmunge
             {
                 Console.WriteLine("Press any key to exit.");
                 Console.ReadLine();
+                Environment.Exit(1);
             }
+
+            return options.Value;
         }
     }
 }
