@@ -65,7 +65,7 @@ namespace ironmunge
         public async Task<string> AddSaveAsync(string savePath, string filename, CancellationToken cancellationToken = default)
         {
             var historyDir = await InitializeHistoryDirectoryAsync(filename);
-            var (json, commitMessage) = await Game.AddSaveAsync(savePath, null, cancellationToken);
+            var (json, commitMessage) = await Game.AddSaveAsync(savePath, cancellationToken);
 
             var historySavePath = Path.Join(historyDir, filename);
             File.Move(savePath, historySavePath, true);
