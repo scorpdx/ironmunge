@@ -13,6 +13,6 @@ namespace Ironmunge.Plugins
 
         IEnumerable<string> Filters { get; }
 
-        ValueTask<(JsonDocument saveDocument, string commitMessage)> AddSaveAsync(string savePath, ILogger logger, CancellationToken cancellationToken = default);
+        ValueTask<(JsonDocument saveDocument, string commitMessage)> AddSaveAsync(string savePath, CancellationToken cancellationToken = default);
     }
 }
