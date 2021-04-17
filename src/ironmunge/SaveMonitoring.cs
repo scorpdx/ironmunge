@@ -1,5 +1,6 @@
 ﻿using Ironmunge.Common;
 using Ironmunge.Plugins;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace ironmunge
         private Task NotificationAsync(string path)
             => PlayNotifications ? SoundUtilities.PlayAsync(path) : Task.CompletedTask;
 
+        private readonly ILogger<SaveMonitoring> _logger;
         private readonly SaveHistory _history;
         private readonly FileSystemWatcher _watcher;
 
@@ -30,7 +32,7 @@ namespace ironmunge
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public SaveMonitoring(string gitPath, string savePath, IGame game, string historyPath, string? remote = null)
+        public SaveMonitoring(ILogger<SaveMonitoring> logger, string gitPath, string savePath, IGame game, string historyPath, string? remote = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -40,6 +42,8 @@ namespace ironmunge
                 throw new ArgumentNullException(nameof(historyPath));
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
+
+            _logger = logger;
 
             _history = new SaveHistory(game, historyPath, gitPath, remote);
 
@@ -123,14 +127,14 @@ namespace ironmunge
             try
             {
                 var gameDescription = await _history.AddSaveAsync(path, name);
-                Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}] Saved {name} to history: {gameDescription}");
+                _logger.LogInformation("[{timestamp}] Saved {name} to history: {gameDescription}", DateTime.Now.ToShortTimeString(), name, gameDescription);
 
                 await NotificationAsync(SuccessSound);
             }
             catch (Exception e)
             {
                 await NotificationAsync(FailureSound);
-                Console.Error.WriteLine(e);
+                _logger.LogError(e, "Failed saving to history");
             }
         }
 
