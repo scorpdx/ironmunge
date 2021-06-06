@@ -1,1 +1,2 @@
 ﻿Games/CrusaderKings3.dll
+Games/CrusaderKings2.dll
