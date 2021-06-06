@@ -72,16 +72,27 @@ namespace CrusaderKings3
             var reason = deadData.GetProperty("reason");
             switch (reason.GetString())
             {
+                //Murders
                 case "death_mysterious":
-                    var killer = deadData.GetProperty("killer").GetInt64();
-                    _logger.LogInformation("Died under mysterious circumstances by killer {0}", GetCharacterName(gamestate, killer));
+                    _logger.LogInformation("Died under mysterious circumstances by killer {0}", FindMurderer());
+                    break;
+                case "death_disappearance":
+                    _logger.LogInformation("Vanished without a trace by killer {0}", FindMurderer());
                     break;
                 case "death_drinking_passive":
                     _logger.LogInformation("Drank themself to death");
                     break;
                 default:
-                    ;
+                    _logger.LogInformation("unknown reason: {reason}", reason);
                     break;
+            }
+
+            return;
+
+            string FindMurderer()
+            {
+                var killer = deadData.GetProperty("killer").GetInt64();
+                return GetCharacterName(gamestate, killer);
             }
         }
 
