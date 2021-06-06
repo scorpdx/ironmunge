@@ -111,8 +111,7 @@ namespace SaveManager
             switch (savePath[^1])
             {
                 case '2':
-                    var metaPath = Directory.EnumerateFiles(historyPath, "meta", SearchOption.TopDirectoryOnly).Single();
-                    await RestoreCK2SaveAsync(savePath, saveGameLocation, metaPath: metaPath);
+                    RestoreCK2Save(savePath, saveGameLocation);
                     break;
                 case '3':
                     RestoreCK3Save(savePath, saveGameLocation);
@@ -120,10 +119,10 @@ namespace SaveManager
             }
         }
 
-        static async Task RestoreCK2SaveAsync(string savePath, string saveGameLocation, string metaPath)
+        static void RestoreCK2Save(string historySavePath, string activeSaveGamePath)
         {
-            var saveGameName = Path.GetFileName(savePath);
-            var saveGamePath = Path.Combine(saveGameLocation, saveGameName);
+            var saveGameName = Path.GetFileName(historySavePath);
+            var saveGamePath = Path.Join(activeSaveGamePath, saveGameName);
 
             //make a backup if sg already exists
             string? backupPath = null;
@@ -135,11 +134,13 @@ namespace SaveManager
 
             try
             {
-                await using var writeStream = File.Create(saveGamePath);
-                using var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CKSettings.SaveGameEncoding);
+                //await using var readStream = File.OpenRead(historySavePath);
+                //await using var writeStream = File.Create(saveGamePath);
+                File.Copy(historySavePath, saveGamePath, true);
+                //using var saveZip = new ZipArchive(writeStream, ZipArchiveMode.Create, true, CKSettings.SaveGameEncoding);
 
-                saveZip.CreateEntryFromFile(savePath, saveGameName);
-                saveZip.CreateEntryFromFile(metaPath, "meta");
+                //saveZip.CreateEntryFromFile(savePath, saveGameName);
+                //saveZip.CreateEntryFromFile(metaPath, "meta");
             }
             catch (Exception ex)
             {
@@ -192,9 +193,7 @@ namespace SaveManager
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
-#pragma warning disable CS8604 // Possible null reference argument.
                     var task = InteractiveRestoreAsync(o.GitLocation ?? Options.DefaultGitPath, o.SaveGameLocation, o.SaveHistoryLocation ?? o.SaveGameLocation);
-#pragma warning restore CS8604 // Possible null reference argument.
                     task.Wait();
                 })
                 .WithNotParsed(o =>
