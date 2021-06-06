@@ -26,39 +26,10 @@ namespace CrusaderKings2
 
         public IEnumerable<string> Filters { get; } = new string[] { "*.ck2" };
 
-        //public ValueTask<(JsonDocument saveDocument, string commitMessage)> AddSaveAsync(string savePath, ILogger logger, CancellationToken cancellationToken = default)
-        //{
-        //    throw new NotImplementedException();
-
-        //    using var zipStream = File.OpenRead(savePath);
-        //    await UnzipSaveAsync(zipStream, outputDir);
-
-        //    var (gameDescription, save, meta) = await ParseCK2SaveAsync(outputDir);
-        //    gameDescription = await RunMungersAsync(outputDir, gameDescription, save, meta);
-
-        //    await AddGitSaveAsync(gameDescription, outputDir);
-
-        //    return gameDescription;
-        //}
-
         public void Dispose()
         {
             ;
         }
-
-        //private static async ValueTask UnzipSaveAsync(Stream zipStream, string outputDir)
-        //{
-        //    using var zip = new ZipArchive(zipStream, ZipArchiveMode.Read, true, SaveGameEncoding);
-        //    foreach (var entry in zip.Entries)
-        //    {
-        //        var outputPath = Path.Join(outputDir, entry.FullName);
-
-        //        await using var outputStream = File.Create(outputPath);
-        //        await using var entryStream = entry.Open();
-
-        //        await entryStream.CopyToAsync(outputStream);
-        //    }
-        //}
 
         public async ValueTask<(JsonDocument saveDocument, string commitMessage)> AddSaveAsync(string savePath, CancellationToken cancellationToken = default)
         {
@@ -79,38 +50,6 @@ namespace CrusaderKings2
 
         static string GetGameDescription(JsonDocument doc)
             => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
-
-        //private async ValueTask<(string gameDescription, JsonDocument save, JsonDocument meta)> ParseCK2SaveAsync(string outputDir)
-        //{
-        //    static string GetGameDescription(JsonDocument doc)
-        //     => $"[{doc.RootElement.GetProperty("date").GetString()}] {doc.RootElement.GetProperty("player_name").GetString()}";
-
-        //    var metaName = Path.Combine(outputDir, "meta");
-        //    var (metaJson, _) = await ConvertCK2JsonAsync(metaName);
-
-        //    var saveName = Directory.EnumerateFiles(outputDir, "*.ck2", SearchOption.TopDirectoryOnly).Single();
-        //    var (saveJson, _) = await ConvertCK2JsonAsync(saveName);
-
-        //    var gameDescription = GetGameDescription(metaJson);
-        //    return (gameDescription, saveJson, metaJson);
-        //}
-
-        //private static async ValueTask<(JsonDocument json, string jsonPath)> ConvertCK2JsonAsync(string filepath, CancellationToken cancellationToken = default)
-        //{
-        //    var jsonPath = Path.ChangeExtension(filepath, ".json");
-        //    await using var jsonStream = File.Create(jsonPath);
-
-        //    await using var writer = new Utf8JsonWriter(jsonStream,
-        //        new JsonWriterOptions
-        //        {
-        //            Indented = true
-        //        });
-
-        //    var json = await ParseFileAsync(CK2JsonConverterPath, filepath);
-        //    json.WriteTo(writer);
-
-        //    return (json, jsonPath);
-        //}
 
         private static Task<JsonDocument> ParseFileAsync(string jsonConverterPath, string filepath, string arguments = null)
         {
