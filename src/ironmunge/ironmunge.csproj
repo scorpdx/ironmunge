@@ -10,6 +10,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,11 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="corgit" Version="0.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\common\Ironmunge.Common.csproj" />
+    <ProjectReference Include="..\Ironmunge.Common\Ironmunge.Common.csproj" />
+    <ProjectReference Include="..\Ironmunge.Plugins\Ironmunge.Plugins.csproj" />
   </ItemGroup>
 </Project>

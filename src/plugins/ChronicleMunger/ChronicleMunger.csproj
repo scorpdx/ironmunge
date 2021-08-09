@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+	<TargetFramework>netcoreapp3.1</TargetFramework>
+	<LangVersion>latest</LangVersion>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\common\Ironmunge.Common.csproj">
+    <ProjectReference Include="..\..\Ironmunge.Plugins\Ironmunge.Plugins.csproj">
 		<ExcludeAssets>runtime</ExcludeAssets>
 		<Private>false</Private>
     </ProjectReference>

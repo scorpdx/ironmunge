@@ -2,7 +2,7 @@
   "profiles": {
     "ironmunge": {
       "commandName": "Project",
-      "commandLineArgs": "-g \"%USERPROFILE%/.nuget/packages/git-windows-minimal/2.20.1/tools/cmd/git.exe\""
+      "commandLineArgs": "-g git -s \"C:\\Users\\Zebedee\\Documents\\Paradox Interactive\\Crusader Kings III\\save games\" -h \"H:\\OneDrive\\Saves\\CK3\""
     }
   }
 }

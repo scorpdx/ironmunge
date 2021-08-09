@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using Humanizer;
 using Ironmunge.Common;
 using Ironmunge.Plugins;
 using System;
@@ -24,8 +25,6 @@ namespace ironmunge
 
         const string PluginPathsFilename = "plugins.txt";
 
-        static string DefaultSaveDir => CK2Settings.SaveGameLocation;
-
         static void Main(string[] args)
         {
             var options = CommandLine.Parser.Default.ParseArguments<IronmungeOptions>(args)
@@ -44,8 +43,8 @@ namespace ironmunge
 #pragma warning disable CS8604 // Possible null reference argument.
                     using var cm = new SaveMonitoring(o.GitLocation ?? Options.DefaultGitPath,
 #pragma warning restore CS8604 // Possible null reference argument.
-                                                         o.SaveGameLocation ?? DefaultSaveDir,
-                                                         o.SaveHistoryLocation ?? DefaultSaveDir,
+                                                         o.SaveGameLocation,
+                                                         o.SaveHistoryLocation ?? o.SaveGameLocation,
                                                          o.Remote,
                                                          LoadPlugins())
                     {
@@ -109,6 +108,7 @@ namespace ironmunge
             => assembly.GetTypes()
                 .Where(type => typeof(IMunger).IsAssignableFrom(type))
                 .Select(Activator.CreateInstance)
-                .Cast<IMunger>();
+                .Cast<IMunger>()
+                .Select(m => m ?? throw new InvalidOperationException($"Munger was null in assembly {assembly}"));
     }
 }

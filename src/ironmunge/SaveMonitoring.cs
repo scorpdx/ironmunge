@@ -45,7 +45,7 @@ namespace ironmunge
 
             _watcher = new FileSystemWatcher(savePath)
             {
-                Filter = "*.ck2"
+                Filter = "*.ck?"
             };
 
             _watcher.Changed += CopyAndSave;
