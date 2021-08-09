@@ -8,11 +8,6 @@
     <ApplicationIcon>..\..\assets\ironmunge.ico</ApplicationIcon>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
   <ItemGroup>
     <Content Condition="'$(Configuration)'=='Debug'" Include="$(SolutionDir)assets\**" CopyToOutputDirectory="PreserveNewest" Link="Resources\%(RecursiveDir)\%(Filename)%(Extension)" />
   </ItemGroup>

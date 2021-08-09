@@ -1,16 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Chronicler" Version="0.3.0" />
-    <PackageReference Include="Humanizer.Core" Version="2.8.26" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Ironmunge.Plugins\Ironmunge.Plugins.csproj">
       <ExcludeAssets>runtime</ExcludeAssets>

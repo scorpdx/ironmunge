@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ironmunge
 {
-    public class SaveMonitoring : IDisposable
+    public sealed class SaveMonitoring : IDisposable
     {
         private const string FailureSound = "Resources/failure.wav";
         private const string PendingSound = "Resources/pending.wav";
@@ -24,13 +24,13 @@ namespace ironmunge
         private readonly SaveHistory _history;
         private readonly FileSystemWatcher _watcher;
 
-        private readonly ConcurrentDictionary<string, bool> _pendingSaves = new ConcurrentDictionary<string, bool>();
+        private readonly ConcurrentDictionary<string, bool> _pendingSaves = new();
 
         public bool PlayNotifications { get; set; } = true;
 
         public TimeSpan MaximumWait { get; set; } = TimeSpan.FromSeconds(30);
 
-        public SaveMonitoring(string gitPath, string savePath, string historyPath, string? remote = null, IEnumerable<IMunger>? plugins = null)
+        public SaveMonitoring(string gitPath, string savePath, IGame game, string historyPath, string? remote = null)
         {
             if (string.IsNullOrEmpty(gitPath))
                 throw new ArgumentNullException(nameof(gitPath), "git was not found");
@@ -41,12 +41,13 @@ namespace ironmunge
             if (PlayNotifications && !NotificationSoundsPresent())
                 throw new InvalidOperationException("Notification sound files are missing and notifications are enabled");
 
-            _history = new SaveHistory(historyPath, gitPath, remote, plugins);
+            _history = new SaveHistory(game, historyPath, gitPath, remote);
 
-            _watcher = new FileSystemWatcher(savePath)
+            _watcher = new FileSystemWatcher(savePath);
+            foreach (var filter in game.Filters)
             {
-                Filter = "*.ck?"
-            };
+                _watcher.Filters.Add(filter);
+            }
 
             _watcher.Changed += CopyAndSave;
             _watcher.Created += CopyAndSave;
@@ -136,22 +137,13 @@ namespace ironmunge
         #region IDisposable Support
         private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposedValue)
             {
-                if (disposing)
-                {
-                    _watcher.Dispose();
-                }
-
+                _watcher?.Dispose();
                 disposedValue = true;
             }
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
         #endregion
     }

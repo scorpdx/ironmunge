@@ -2,13 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Chronicler" Version="0.3.0" />
-    <PackageReference Include="Humanizer.Core" Version="2.8.26" />
+    <PackageReference Include="LibCK3" Version="1.3.0" />
   </ItemGroup>
 
   <ItemGroup>
