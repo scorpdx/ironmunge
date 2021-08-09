@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31521.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ironmunge", "src\ironmunge\ironmunge.csproj", "{60082FD1-ACBA-40E2-8C1A-08421E9CD3F7}"
 EndProject
@@ -25,9 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ironmunge.Plugins", "src\Ir
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrusaderKings2", "src\plugins\CrusaderKings2\CrusaderKings2.csproj", "{3DFA4FD7-2953-43F5-8120-188E10D05D19}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingdomComeDeliverance", "src\plugins\KingdomComeDeliverance\KingdomComeDeliverance.csproj", "{C9CDA61F-30AC-4B6F-A40E-E7FEF8C62FD9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrusaderKings3", "src\plugins\CrusaderKings3\CrusaderKings3.csproj", "{9052F0D2-EDFC-4143-9EA8-76DDB226A5F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrusaderKings3", "src\plugins\CrusaderKings3\CrusaderKings3.csproj", "{9052F0D2-EDFC-4143-9EA8-76DDB226A5F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +57,6 @@ Global
 		{3DFA4FD7-2953-43F5-8120-188E10D05D19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DFA4FD7-2953-43F5-8120-188E10D05D19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DFA4FD7-2953-43F5-8120-188E10D05D19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9CDA61F-30AC-4B6F-A40E-E7FEF8C62FD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9CDA61F-30AC-4B6F-A40E-E7FEF8C62FD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9CDA61F-30AC-4B6F-A40E-E7FEF8C62FD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9CDA61F-30AC-4B6F-A40E-E7FEF8C62FD9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9052F0D2-EDFC-4143-9EA8-76DDB226A5F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9052F0D2-EDFC-4143-9EA8-76DDB226A5F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9052F0D2-EDFC-4143-9EA8-76DDB226A5F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,7 +68,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{69C9C480-FA53-48BB-93E0-2A81FE0651B4} = {210F8A97-F4C9-482A-8B43-154677EEDD27}
 		{3DFA4FD7-2953-43F5-8120-188E10D05D19} = {210F8A97-F4C9-482A-8B43-154677EEDD27}
-		{C9CDA61F-30AC-4B6F-A40E-E7FEF8C62FD9} = {210F8A97-F4C9-482A-8B43-154677EEDD27}
 		{9052F0D2-EDFC-4143-9EA8-76DDB226A5F0} = {210F8A97-F4C9-482A-8B43-154677EEDD27}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
